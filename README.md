@@ -36,7 +36,7 @@
 - Android
 - Firebase
 - Tensorflow Lite
-- GCP(Google Container Registry, Google Cloud Storage, Google Kubernetes Engine)
+- GCP(Google Container Registry, Google Cloud SQL, Google Kubernetes Engine)
 
 <br>
 
