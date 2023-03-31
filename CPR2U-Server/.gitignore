@@ -1,6 +1,5 @@
 HELP.md
 .gradle
-build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -35,7 +34,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-### CPR2U ###
-/src/main/resources/application-local.yml
-src/main/resources/application.properties

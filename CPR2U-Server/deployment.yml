@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: cpr2u
+  name: cpr2u-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cpr2u
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: cpr2u
+    spec:
+      containers:
+        - name: cpr2u
+          image: gcr.io/PROJECT_ID/IMAGE:TAG
+          ports:
+            - containerPort: 8080
