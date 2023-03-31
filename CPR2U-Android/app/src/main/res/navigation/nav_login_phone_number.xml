@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_login_phone_number"
+    app:startDestination="@id/loginPhoneNumberFragment">
+
+    <fragment
+        android:id="@+id/loginPhoneNumberFragment"
+        android:name="com.example.cpr2u_android.presentation.auth.LoginPhoneNumberFragment"
+        android:label="LoginPhoneNumberFragment"
+        tools:layout="@layout/fragment_login_phone_number">
+        <action
+            android:id="@+id/action_loginPhoneNumberFragment_to_loginPhoneNumberCheckFragment"
+            app:destination="@id/loginPhoneNumberCheckFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginPhoneNumberCheckFragment"
+        android:name="com.example.cpr2u_android.presentation.auth.LoginPhoneNumberCheckFragment"
+        android:label="LoginPhoneNumberCheckFragment"
+        tools:layout="@layout/fragment_login_phone_number_check" />
+</navigation>

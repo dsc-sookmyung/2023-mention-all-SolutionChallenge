@@ -1,0 +1,58 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    ext {
+        //kotlin
+        kotlin_version = "1.5.20"
+
+        // lifecycle
+        lifecycle_version = "2.5.1"
+
+        //retrofit
+        retrofit_version = "2.9.0"
+
+        //okhttp
+        okHttp_version = "4.9.0"
+
+        //arch
+        arch_version = "2.2.0"
+
+        //nav
+        nav_version = "2.5.3"
+
+        //koin
+        koin_version = "2.2.3"
+
+        // room
+        room_version = "2.4.0"
+    }
+    repositories {
+        google()
+        mavenCentral()
+        // 카카오 sdk 레포지토리 생성
+        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/'}
+
+        // jitpack 저장소 추가
+        maven { url "https://jitpack.io" }
+    }
+    dependencies {
+
+        classpath "com.android.tools.build:gradle:7.0.3"
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'
+
+        //Firebase SDK 추가
+        classpath 'com.google.gms:google-services:4.3.15'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+
+    }
+}
+plugins {
+    // ...
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin' version '2.0.1' apply false
+    id 'org.jetbrains.kotlin.android' version '1.7.21' apply false
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

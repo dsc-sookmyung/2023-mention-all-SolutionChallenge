@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_call"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".presentation.call.CallFragment">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/mapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <View
+                android:id="@+id/fade_in"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.example.cpr2u_android.util.OutLineTextView
+                android:id="@+id/tv_fade_in"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="@color/main_red"
+                android:textSize="40sp"
+                app:textStrokeColor="#B50000"
+                app:textStrokeWidth="10" />
+        </RelativeLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rectangle_border_red_fill_white_radius_20dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_location"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="12dp"
+                android:layout_marginHorizontal="8dp"
+                android:fontFamily="@font/notosans_regular"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_location"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="100 Cheongpa-dong 3-ga, Yongsan-gu" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:id="@+id/iv_bell"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_call_bell"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar_bell"
+            style="@android:style/Widget.ProgressBar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/progress_bell_background"
+            android:indeterminate="false"
+            android:max="500"
+            android:progressDrawable="@drawable/progress_bell"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/iv_bell"
+            app:layout_constraintEnd_toEndOf="@id/iv_bell"
+            app:layout_constraintStart_toStartOf="@id/iv_bell"
+            app:layout_constraintTop_toTopOf="@id/iv_bell"
+            tools:progress="200" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</layout>

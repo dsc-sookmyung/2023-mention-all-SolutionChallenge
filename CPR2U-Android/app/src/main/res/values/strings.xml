@@ -1,0 +1,60 @@
+<resources>
+    <string name="app_name">CPR2U</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--    login-->
+    <string name="login_title">Enter your number</string>
+    <string name="login_subtitle">We will send a code to verify your mobile number</string>
+    <string name="login_country_code">+ 82</string>
+    <string name="login_hint">Phone Number*</string>
+    <string name="login_send">SEND</string>
+
+    <!--    login check-->
+    <string name="login_check_title">Enter code</string>
+    <string name="login_check_subtitle">An SMS code was sent to</string>
+    <string name="login_check_country_code">+82</string>
+    <string name="login_check_not_receive">Not receiving the code?</string>
+    <string name="login_check_confirm">CONFIRM</string>
+
+    <!--    signup-->
+    <string name="signup_title">Enter your Nickname</string>
+    <string name="signup_subtitle">People can recognize you by your nickname</string>
+    <string name="signup_hint">Nickname*</string>
+    <string name="signup_continue">CONTINUE</string>
+    <string name="signup_set_nickname">닉네임을 입력해주세요</string>
+    <string name="signup_no_special_characters">Nickname cannot contain special characters</string>
+    <string name="menu_education">education</string>
+    <string name="menu_call">call</string>
+    <string name="menu_profile">profile</string>
+    <string name="title_activity_quiz">QuizActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <string-array name="tfe_pe_models_array">
+        <item>Movenet Lightning</item>
+        <item>Movenet Thunder</item>
+        <item>Movenet MultiPose</item>
+        <item>Posenet</item>
+    </string-array>
+
+    <string-array name="tfe_pe_device_name">
+        <item>CPU</item>
+        <item>GPU</item>
+        <item>NNAPI</item>
+    </string-array>
+
+    <string-array name="tfe_pe_tracker_array">
+        <item>Off</item>
+        <item>BoundingBox</item>
+        <item>Keypoint</item>
+    </string-array>
+
+    <string name="tfe_pe_tv_score">Score: %.2f</string>
+</resources>

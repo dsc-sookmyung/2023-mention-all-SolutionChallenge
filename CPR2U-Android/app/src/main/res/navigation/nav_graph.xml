@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/QuizQuestionFragment">
+
+    <fragment
+        android:id="@+id/QuizQuestionFragment"
+        android:name="com.example.cpr2u_android.presentation.education.QuizQuestionFragment"
+        android:label="QuizQuestion"
+        tools:layout="@layout/fragment_quiz_question">
+
+        <action
+            android:id="@+id/action_QuizQuestionFragment_to_QuizAnswerFragment"
+            app:destination="@id/QuizAnswerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/QuizAnswerFragment"
+        android:name="com.example.cpr2u_android.presentation.education.QuizAnswerFragment"
+        android:label="QuizAnswer"
+        tools:layout="@layout/fragment_quiz_answer">
+
+        <action
+            android:id="@+id/action_QuizAnswerFragment_to_QuizQuestionFragment"
+            app:destination="@id/QuizQuestionFragment" />
+    </fragment>
+</navigation>

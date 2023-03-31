@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "260439878640",
+    "project_id": "cpr2u-b1b0d",
+    "storage_bucket": "cpr2u-b1b0d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260439878640:android:268aefa00850161d108b35",
+        "android_client_info": {
+          "package_name": "com.example.cpr2u_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "260439878640-q9914et25h3p7q3m94jc4fh252gnstbl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9jGR0v8QfuXvpMVSLcb1YTl6DHIyiDuQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "260439878640-q9914et25h3p7q3m94jc4fh252gnstbl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "260439878640-vr6q4c66afobdoo5jc6i80juulmmr9s2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jhHwang.CPRtoU"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260439878640:android:b4f8deda94cb724b108b35",
+        "android_client_info": {
+          "package_name": "com.example.test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "260439878640-q9914et25h3p7q3m94jc4fh252gnstbl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9jGR0v8QfuXvpMVSLcb1YTl6DHIyiDuQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "260439878640-q9914et25h3p7q3m94jc4fh252gnstbl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "260439878640-vr6q4c66afobdoo5jc6i80juulmmr9s2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jhHwang.CPRtoU"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

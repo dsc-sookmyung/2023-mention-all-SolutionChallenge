@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_q_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="26dp"
+            android:fontFamily="@font/notosans_bold"
+            android:text="Q1."
+            android:textColor="@color/main_red"
+            android:textSize="28sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_q"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="17dp"
+            android:layout_marginEnd="37dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_q_num">
+
+            <View
+                android:id="@+id/line"
+                android:layout_width="3dp"
+                android:layout_height="0dp"
+                android:background="@color/main_light_red"
+                app:layout_constraintBottom_toBottomOf="@id/tv_q"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tv_q" />
+
+            <TextView
+                android:id="@+id/tv_q"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="11dp"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:text="When you find someone who has fallen, you have to compress his chest instantly."
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_o_x"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="77dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_q">
+
+            <TextView
+                android:id="@+id/tv_q_o"
+                android:layout_width="108dp"
+                android:layout_height="80dp"
+                android:background="@drawable/selector_quiz_question"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:text="O"
+                android:textColor="@color/black"
+                android:textSize="36sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_q_x"
+                android:layout_width="108dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="44dp"
+                android:background="@drawable/selector_quiz_question"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:text="X"
+                android:textColor="@color/black"
+                android:textSize="36sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tv_q_o"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_choose_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="77dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_q">
+
+            <TextView
+                android:id="@+id/tv_choose_1"
+                android:layout_width="334dp"
+                android:layout_height="52dp"
+                android:background="@drawable/selector_quiz_question"
+                android:fontFamily="@font/notosans_regular"
+                android:gravity="center"
+                android:text="Forehead"
+                android:textColor="@color/black"
+                android:textSize="28sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_choose_2"
+                android:layout_width="334dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/selector_quiz_question"
+                android:fontFamily="@font/notosans_regular"
+                android:gravity="center"
+                android:text="Forehead"
+                android:textColor="@color/black"
+                android:textSize="28sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_choose_1" />
+
+            <TextView
+                android:id="@+id/tv_choose_3"
+                android:layout_width="334dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/selector_quiz_question"
+                android:fontFamily="@font/notosans_regular"
+                android:gravity="center"
+                android:text="Forehead"
+                android:textColor="@color/black"
+                android:textSize="28sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_choose_2" />
+
+            <TextView
+                android:id="@+id/tv_choose_4"
+                android:layout_width="334dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/selector_quiz_question"
+                android:fontFamily="@font/notosans_regular"
+                android:gravity="center"
+                android:text="Forehead"
+                android:textColor="@color/black"
+                android:textSize="28sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_choose_3" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <TextView
+            android:id="@+id/button_next"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@color/main_light_red"
+            android:fontFamily="@font/notosans_bold"
+            android:gravity="center"
+            android:text="@string/next"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

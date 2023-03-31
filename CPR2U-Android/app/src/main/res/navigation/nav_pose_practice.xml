@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_pose_practice"
+    app:startDestination="@id/posePractice1Fragment">
+
+    <fragment
+        android:id="@+id/posePractice1Fragment"
+        android:name="com.example.cpr2u_android.presentation.education.PosePractice1Fragment"
+        android:label="PosePractice1Fragment"
+        tools:layout="@layout/fragment_pose_practice_1">
+        <action
+            android:id="@+id/action_posePractice1Fragment_to_posePractice2Fragment"
+            app:destination="@id/posePractice2Fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/posePractice2Fragment"
+        android:name="com.example.cpr2u_android.presentation.education.PosePractice2Fragment"
+        android:label="PosePractice2Fragment"
+        tools:layout="@layout/fragment_pose_practice_2">
+        <action
+            android:id="@+id/action_posePractice2Fragment_to_posePractice3Fragment"
+            app:destination="@id/posePractice3Fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/posePractice3Fragment"
+        android:name="com.example.cpr2u_android.presentation.education.PosePractice3Fragment"
+        android:label="PosePractice3Fragment"
+        tools:layout="@layout/fragment_pose_practice_3" />
+</navigation>

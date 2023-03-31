@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_bottom_navigation"
+    app:startDestination="@id/callFragment">
+
+    <fragment
+        android:id="@+id/educationFragment"
+        android:name="com.example.cpr2u_android.presentation.education.EducationFragment"
+        android:label="EducationFragment"
+        tools:layout="@layout/fragment_education" />
+    <fragment
+        android:id="@+id/callFragment"
+        android:name="com.example.cpr2u_android.presentation.call.CallFragment"
+        android:label="CallFragment"
+        tools:layout="@layout/fragment_call" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.cpr2u_android.presentation.profile.ProfileFragment"
+        android:label="ProfileFragment"
+        tools:layout="@layout/fragment_profile" />
+</navigation>

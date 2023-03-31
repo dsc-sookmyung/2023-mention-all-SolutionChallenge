@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="OutLineTextView">
+        <attr name ="textStrokeWidth" format ="float"/> //외곽선 width
+        <attr name ="textStrokeColor" format ="color"/> //외곽선 color
+    </declare-styleable>
+</resources>
