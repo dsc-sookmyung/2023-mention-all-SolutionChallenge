@@ -1,5 +1,5 @@
 # 2023 Solution Challenge: CPR2U
-<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/thumbnail.png" alt="notinote-banner" border="0" width="1000px" />
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/thumbnail.png" border="0" width="1000px" />
 
  `CPR2U` is an education solution to solve Korean's low CPR performance and survival rates for out-of-hostpital cradiac arrest patients. Users can receive CPR education through online and receive their CPR postures feedback through machine learning. In case of cardiac arrest, users can call for nearby certified users who have completed our training course to request emergency CPR.
 
@@ -45,7 +45,7 @@
 <br>
 
 ## 🛠 Project Architecture
-<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/architecture.png" alt="notinote-banner" border="0" width="1000px" />
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/architecture.png" border="0" width="1000px" />
 
 <br>
 
@@ -53,4 +53,44 @@
 
 ## 📸 Screenshots
 
-To be updated later.
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot1.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot2.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot3.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot4.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot5.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot6.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot7.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot8.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot9.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot10.png" border="0" width="1000px" />
+
+<br>
+
+<img src="https://github.com/dsc-sookmyung/2023-mention-all-SolutionChallenge/blob/main/images/screenshot11.png" border="0" width="1000px" />
