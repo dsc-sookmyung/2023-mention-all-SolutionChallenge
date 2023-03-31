@@ -8,8 +8,9 @@
 <br>
 
 ## 📱 How to run our app service
-- Click here to download.
+- Click [here](https://drive.google.com/drive/folders/1_wUgyb4SwmRlgZxCLX3tP-cZ9-uzlA8I?usp=share_link) to download an apk file.
 - Install the apk file on your android smartphone.
+- Enter `1111` in the verification code field to log in our service. (We temporarily removed the verification code sending API due to cost issue..)
 
 <br>
 
