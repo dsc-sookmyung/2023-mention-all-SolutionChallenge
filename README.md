@@ -33,10 +33,11 @@
 <br>
 
 ## 🔧 Google Technology Used
-- Android
+- Android / Kotlin
 - Firebase
 - Tensorflow Lite
-- GCP(Google Container Registry, Google Cloud SQL, Google Kubernetes Engine)
+- Google Cloud Platform(Google Container Registry, Google Cloud SQL, Google Kubernetes Engine)
+- Google Maps Platform
 
 <br>
 
