@@ -1,0 +1,45 @@
+PODS:
+  - GoogleMaps (7.4.0):
+    - GoogleMaps/Maps (= 7.4.0)
+  - GoogleMaps/Base (7.4.0)
+  - GoogleMaps/Maps (7.4.0):
+    - GoogleMaps/Base
+  - GooglePlaces (7.4.0)
+  - TensorFlowLiteC (0.0.1-nightly.20230323):
+    - TensorFlowLiteC/Core (= 0.0.1-nightly.20230323)
+  - TensorFlowLiteC/Core (0.0.1-nightly.20230323)
+  - TensorFlowLiteC/CoreML (0.0.1-nightly.20230323):
+    - TensorFlowLiteC/Core
+  - TensorFlowLiteC/Metal (0.0.1-nightly.20230323):
+    - TensorFlowLiteC/Core
+  - TensorFlowLiteSwift/Core (0.0.1-nightly.20230323):
+    - TensorFlowLiteC (= 0.0.1-nightly.20230323)
+  - TensorFlowLiteSwift/CoreML (0.0.1-nightly.20230323):
+    - TensorFlowLiteC/CoreML (= 0.0.1-nightly.20230323)
+    - TensorFlowLiteSwift/Core (= 0.0.1-nightly.20230323)
+  - TensorFlowLiteSwift/Metal (0.0.1-nightly.20230323):
+    - TensorFlowLiteC/Metal (= 0.0.1-nightly.20230323)
+    - TensorFlowLiteSwift/Core (= 0.0.1-nightly.20230323)
+
+DEPENDENCIES:
+  - GoogleMaps
+  - GooglePlaces
+  - TensorFlowLiteSwift/CoreML (~> 0.0.1-nightly)
+  - TensorFlowLiteSwift/Metal (~> 0.0.1-nightly)
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - GoogleMaps
+    - GooglePlaces
+    - TensorFlowLiteC
+    - TensorFlowLiteSwift
+
+SPEC CHECKSUMS:
+  GoogleMaps: 032f676450ba0779bd8ce16840690915f84e57ac
+  GooglePlaces: 544e908d94860bf6f8fc1865b80d2c7eb6b5f937
+  TensorFlowLiteC: 1b9920491580a9347af1916cefd65bf3a2fd4e5d
+  TensorFlowLiteSwift: 6459fdef64514c95a6675a17c2898c3424bc73b0
+
+PODFILE CHECKSUM: 663cb07e0f0ad41b9fa22176a997112fde89d754
+
+COCOAPODS: 1.11.3
