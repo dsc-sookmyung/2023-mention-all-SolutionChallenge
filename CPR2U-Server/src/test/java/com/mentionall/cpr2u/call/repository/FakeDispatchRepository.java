@@ -7,10 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 public class FakeDispatchRepository implements DispatchRepository {
@@ -169,6 +166,13 @@ public class FakeDispatchRepository implements DispatchRepository {
 
     @Override
     public List<Dispatch> findAllByCprCallId(Long cprCallId) {
-        return null;
+        List<Dispatch> dispatchList = new ArrayList<>();
+        for(Object object : map.values()){
+            Dispatch dispatch = (Dispatch) object;
+            if(dispatch.getCprCall().getId() == cprCallId){
+                dispatchList.add(dispatch);
+            }
+        }
+        return dispatchList;
     }
 }

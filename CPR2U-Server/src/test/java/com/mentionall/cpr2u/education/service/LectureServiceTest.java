@@ -16,6 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -35,7 +37,7 @@ public class LectureServiceTest {
     @DisplayName("사용자의 강의 진도 조회")
     public void readLectureProgress() {
         //given
-        User user = userRepository.save(new User("1L", new UserSignUpDto("현애", "010-9980-6523", "device_token")));
+        User user = userRepository.save(new User(new UserSignUpDto("현애", "+821000000000", UUID.randomUUID().toString())));
         progressRepository.save(new EducationProgress(user));
 
         lectureService.createLecture(new LectureRequestDto(1, "강의1", "1입니다.", "https://naver.com"));

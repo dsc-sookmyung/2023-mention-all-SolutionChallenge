@@ -11,16 +11,26 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 public class FakeCprCallRepository implements CprCallRepository {
     Map<Long, Object> map = new HashMap();
     @Override
     public List<CprCallDto> findAllCallInProcessByAddress(Long addressId) {
+        List<CprCallDto> cprCallDtoList = new ArrayList<>();
+        for(int i = 1; i < map.size() ; i++){
+            CprCall cprCall = (CprCall) map.get(Long.valueOf(i));
+            if(cprCall.getAddress().getId() == addressId) {
+                CprCallDto cprCallDto = new CprCallDto(cprCall);
+                cprCallDtoList.add(cprCallDto);
+            }
+        }
+        return cprCallDtoList;
+    }
+
+    @Override
+    public List<CprCall> findAllCallInProgressButExpired() {
         return null;
     }
 
@@ -76,6 +86,8 @@ public class FakeCprCallRepository implements CprCallRepository {
 
     @Override
     public <S extends CprCall> S save(S entity) {
+//        map.put((long)(map.size() + 1), entity);
+//        System.out.println((map.size() + 1));
         map.put(entity.getId(), entity);
         return entity;
     }

@@ -53,7 +53,7 @@ public class EducationProgressTest {
         LocalDate after90Days = LocalDate.now().minusDays(90);
         LocalDate after91Days = LocalDate.now().minusDays(91);
 
-        User user1 = userRepository.save(new User("1L", new UserSignUpDto("현애", "010-0000-0000", "device_token")));
+        User user1 = userRepository.save(new User("1L", "현애", "010-0000-0000", after3Days.atStartOfDay(), AngelStatusEnum.ACQUIRED, null, null, null, null, null, null, null));
         User user2 = userRepository.save(new User("2L", "예진", "010-1111-1111", after3Days.atStartOfDay(), AngelStatusEnum.ACQUIRED, null, null, null, null, null, null, null));
         User user3 = userRepository.save(new User("3L", "정현", "010-2222-2222", after90Days.atStartOfDay(), AngelStatusEnum.ACQUIRED, null, null, null, null, null, null, null));
         User user4 = userRepository.save(new User("4L", "채영", "010-3333-3333", after91Days.atStartOfDay(), AngelStatusEnum.ACQUIRED, null, null, null, null, null, null, null));
@@ -71,7 +71,7 @@ public class EducationProgressTest {
     @DisplayName("강의 이수 완료")
     public void completeLecture() {
         //given
-        User user = userRepository.findById("1L").get();
+        User user = userRepository.findById("1").get();
 
         //when lecture course is not started,
         verifyLectureProgress(user, null, NotCompleted);
@@ -93,7 +93,7 @@ public class EducationProgressTest {
     @DisplayName("퀴즈 테스트 통과")
     public void completeQuiz() {
         //given
-        User user = userRepository.findById("1L").get();
+        User user = userRepository.findById("1").get();
         completeLectureCourse(user);
 
         //when quiz test is not started,
@@ -113,7 +113,7 @@ public class EducationProgressTest {
     @DisplayName("자세실습 테스트 통과")
     public void completePosture() {
         //given
-        User user = userRepository.findById("1L").get();
+        User user = userRepository.findById("1").get();
         completeLectureCourse(user);
         progressService.completeQuiz(user, new ScoreDto(100));
 
@@ -135,7 +135,7 @@ public class EducationProgressTest {
     @DisplayName("강의를 듣지 않으면 퀴즈 테스트 불통과")
     public void completeQuizWithoutLecture() {
         //given
-        User user = userRepository.findById("1L").get();
+        User user = userRepository.findById("1").get();
 
         // when the lecture course is not completed,
         Assertions.assertThrows(CustomException.class,
@@ -147,7 +147,7 @@ public class EducationProgressTest {
     @DisplayName("강의/퀴즈를 마무리하지 않으면 자세 실습 불통과")
     public void completePostureWithoutQuizOrLecture() {
         //given
-        User user = userRepository.findById("1L").get();
+        User user = userRepository.findById("1").get();
 
         // when the lecture course is not completed,
         Assertions.assertThrows(CustomException.class,
@@ -164,11 +164,11 @@ public class EducationProgressTest {
     public void checkAngelStatusDDay() {
 
         //get
-        User user1 = userRepository.findById("1L").get();
+        User user1 = userRepository.findById("1").get();
         user1.acquireCertification();
-        User user2 = userRepository.findById("2L").get();
-        User user3 = userRepository.findById("3L").get();
-        User user4 = userRepository.findById("4L").get();
+        User user2 = userRepository.findById("2").get();
+        User user3 = userRepository.findById("3").get();
+        User user4 = userRepository.findById("4").get();
 
         EducationProgress educationProgress1 = progressRepository.findByUser(user1).get();
         EducationProgress educationProgress2 = progressRepository.findByUser(user2).get();

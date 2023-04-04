@@ -3,24 +3,54 @@ package com.mentionall.cpr2u.user.repository;
 import com.mentionall.cpr2u.user.domain.Address;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
+
+import static com.mentionall.cpr2u.user.domain.QAddress.address;
 
 public class FakeAddressRepository implements AddressRepository{
     Map<Long, Address> map = new HashMap();
 
     @Override
     public Optional<Address> findByFullAddress(String[] addressList) {
-        return null;
+        System.out.println(addressList[0]);
+        List<Address> findAddressList = findAllBySido(addressList[0]);
+
+        for(int i = 1 ; findAddressList.size() > 1  && i <= 2; i ++) {
+            String sigugun = addressList[i];
+            findAddressList = findBySigugun(sigugun);
+        }
+
+        if(findAddressList.size() < 1) return Optional.empty();
+        return Optional.of(findAddressList.get(0));
+
+    }
+
+    private List<Address> findAllBySido(String sido) {
+        List<Address> addressList = new ArrayList<>();
+        for(Address address : map.values()){
+            if(address.getSido().contains(sido)){
+                addressList.add(address);
+            }
+        }
+        return addressList;
+    }
+
+    private List<Address> findBySigugun(String sigugun) {
+        List<Address> addressList = new ArrayList<>();
+        for(Address address : map.values()){
+            if(address.getSigugun().equals(sigugun)){
+                addressList.add(address);
+            }
+        }
+        return addressList;
     }
 
     @Override
@@ -30,7 +60,11 @@ public class FakeAddressRepository implements AddressRepository{
 
     @Override
     public List<Address> findAll() {
-        return null;
+        List<Address> addressList = new ArrayList<>();
+        for(Address address : map.values()){
+            addressList.add(address);
+        }
+        return addressList;
     }
 
     @Override

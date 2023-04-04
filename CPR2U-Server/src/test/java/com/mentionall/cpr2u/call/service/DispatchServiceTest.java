@@ -1,7 +1,6 @@
 package com.mentionall.cpr2u.call.service;
 
 import com.mentionall.cpr2u.call.domain.*;
-import com.mentionall.cpr2u.call.dto.CprCallOccurDto;
 import com.mentionall.cpr2u.call.dto.DispatchRequestDto;
 import com.mentionall.cpr2u.call.dto.ReportRequestDto;
 import com.mentionall.cpr2u.call.repository.*;
@@ -15,12 +14,12 @@ import com.mentionall.cpr2u.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,15 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DispatchServiceTest {
 
     private DispatchService dispatchService;
-
     private DispatchRepository dispatchRepository;
-
     private CprCallRepository callRepository;
-
     private UserRepository userRepository;
-
     private ReportRepository reportRepository;
-
     private AddressRepository addressRepository;
 
     @BeforeEach
@@ -51,20 +45,19 @@ public class DispatchServiceTest {
 
     @BeforeEach
     public void insertData() {
-        User caller = userRepository.save(new User("2L", new UserSignUpDto("호출자", "010-0000-0000", "device_token")));
+        User dispatcher = userRepository.save(new User(new UserSignUpDto("출동자", "+821000000000", UUID.randomUUID().toString())));
+        User caller = userRepository.save(new User(new UserSignUpDto("호출자", "+821011111111", UUID.randomUUID().toString())));
         Address address = addressRepository.save(new Address(1L, "서울시", "용산구", new ArrayList<>()));
         callRepository.save(new CprCall(1L, caller, address, "서울시 용산구 어쩌구",
-                LocalDateTime.now(), 36.44, 46.55, CprCallStatus.IN_PROGRESS,
+                LocalDateTime.now(), 37.542547, 126.963796, CprCallStatus.IN_PROGRESS,
                 new ArrayList<>(), new ArrayList<>()));
-
-        userRepository.save(new User("1L", new UserSignUpDto("출동자", "010-0000-0000", "device_token")));
     }
 
     @Test
     @DisplayName("CPR 출동")
     public void dispatch() {
         //given
-        User user = userRepository.findById("1L").get();
+        User user = userRepository.findById("1").get();
         CprCall cprCall = callRepository.findById(1L).get();
 
         //when
@@ -72,8 +65,8 @@ public class DispatchServiceTest {
 
         //then
         assertThat(response.getCalledAt()).isEqualTo(cprCall.getCalledAt());
-        assertThat(response.getLatitude()).isEqualTo(36.44);
-        assertThat(response.getLongitude()).isEqualTo(46.55);
+        assertThat(response.getLatitude()).isEqualTo(37.542547);
+        assertThat(response.getLongitude()).isEqualTo(126.963796);
         assertThat(response.getFullAddress()).isEqualTo("서울시 용산구 어쩌구");
 
         Dispatch dispatch = dispatchRepository.findById(response.getDispatchId()).get();
@@ -84,7 +77,7 @@ public class DispatchServiceTest {
     @DisplayName("CPR 출동 도착")
     public void arrive() {
         //given
-        User user = userRepository.findById("1L").get();
+        User user = userRepository.findById("1").get();
         CprCall cprCall = callRepository.findById(1L).get();
 
         //when
@@ -100,7 +93,7 @@ public class DispatchServiceTest {
     @DisplayName("출동 신고")
     public void report() {
         //given
-        User user = userRepository.findById("1L").get();
+        User user = userRepository.findById("1").get();
         CprCall cprCall = callRepository.findById(1L).get();
 
         //when

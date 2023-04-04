@@ -18,6 +18,11 @@ public class FakeUserRepository implements UserRepository{
 
     @Override
     public Optional<User> findByPhoneNumber(String phoneNumber) {
+        for(User user : map.values()){
+            if(user.getPhoneNumber().equals(user.getPhoneNumber())){
+                return Optional.of(user);
+            }
+        }
         return Optional.empty();
     }
 
@@ -88,7 +93,16 @@ public class FakeUserRepository implements UserRepository{
 
     @Override
     public <S extends User> S save(S entity) {
-        map.put(entity.getId(), entity);
+        for(int i = 1 ; i <= map.size() ; i++){
+            String id = String.valueOf(i);
+            User user = map.get(id);
+            if(user.getPhoneNumber().equals(entity.getPhoneNumber())){
+                map.put(id, user);
+                return entity;
+            }
+        }
+        entity.expireCertificate();
+        map.put(String.valueOf(map.size() + 1), entity);
         return entity;
     }
 
