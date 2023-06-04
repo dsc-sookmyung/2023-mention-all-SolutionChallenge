@@ -5,6 +5,7 @@
 //  Created by 황정현 on 2023/03/09.
 //
 
+import Foundation
 import UIKit
 
 final class CertificateStatusView: UIView {
@@ -93,8 +94,6 @@ final class CertificateStatusView: UIView {
     
     private func setUpStyle() {
         self.layer.cornerRadius = 16
-        self.layer.borderColor = UIColor.mainRed.cgColor
-        self.layer.borderWidth = 1
         self.backgroundColor = .mainWhite
     }
     
@@ -105,11 +104,11 @@ final class CertificateStatusView: UIView {
         
         var statusString: String
         if let leftDayString = leftDay {
-            statusString = "\(status.certificationStatus()) (D-\(leftDayString))"
+            statusString = "\(status.getStatus()) (D-\(leftDayString))"
         } else {
-            statusString = status.certificationStatus()
+            statusString = status.getStatus()
         }
-        let certificateStatusString = "Certificate Status: "
+        let certificateStatusString = "cert_status_ann_txt".localized()
         let customFont = UIFont(weight: .bold, size: 14)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: customFont,
@@ -123,6 +122,7 @@ final class CertificateStatusView: UIView {
     }
     
     func setUpGreetingLabel(nickname: String) {
-        greetingLabel.text = "Hi \(nickname)"
+        let localizedStr = String(format: "%@_greeting_txt".localized(), nickname)
+        greetingLabel.text = localizedStr
     }
 }

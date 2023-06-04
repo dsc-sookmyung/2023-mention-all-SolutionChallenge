@@ -10,36 +10,38 @@ import Foundation
 import GoogleMaps
 
 final class CallViewModel: OutputOnlyViewModelType {
+    @Published private(set)var callerListInfo: CallerListInfo?
+    @Published private(set)var dispatcherCount: Int?
+    
     private var callManager: CallManager
+    private var dispatchManager: DispatchManager
     
     private var mapManager: MapManager
     private var currentLocation: CLLocationCoordinate2D?
     
     private var currentLocationAddress = CurrentValueSubject<String, Never>("Unable")
-    var callerList: CurrentValueSubject<CallerListInfo, Never>?
     
     private var callId: Int?
     private let iscalled = CurrentValueSubject<Bool, Never>(false)
+    private let isDispatchEnd = CurrentValueSubject<Bool, Never>(false)
     
     var timer: Timer.TimerPublisher?
     
     init() {
         callManager = CallManager(service: APIManager())
         mapManager = MapManager()
-        Task {
-            try await receiveCallerList()
-        }
+        dispatchManager = DispatchManager(service: APIManager())
+        receiveCallerList()
         setLocation()
     }
     
     struct Output {
         let isCalled: CurrentValueSubject<Bool, Never>
         let currentLocationAddress: CurrentValueSubject<String, Never>?
-        let callerList: CurrentValueSubject<CallerListInfo, Never>?
     }
     
     func transform() -> Output {
-        return Output(isCalled: iscalled, currentLocationAddress: currentLocationAddress, callerList: callerList)
+        return Output(isCalled: iscalled, currentLocationAddress: currentLocationAddress)
     }
     
     func isCallSucceed() {
@@ -64,16 +66,13 @@ final class CallViewModel: OutputOnlyViewModelType {
         currentLocationAddress.send(str)
     }
     
-    func receiveCallerList() async throws -> CallerListInfo? {
-        let result = Task { () -> CallerListInfo? in
+    func receiveCallerList() {
+        Task {
             let callResult = try await callManager.getCallerList()
             
-            guard let list = callResult.data else { return nil }
-            callerList = CurrentValueSubject(list)
-            print(callerList)
-            return list
+            guard let list = callResult.data else { return }
+            callerListInfo = list
         }
-        return try await result.value
     }
     
     func callDispatcher() async throws {
@@ -94,18 +93,47 @@ final class CallViewModel: OutputOnlyViewModelType {
         }
     }
     
-    func countDispatcher() async throws -> Int? {
-        guard let callId = callId else { return nil }
+    func countDispatcher() {
+        guard let callId = callId else { return }
         
-        let result = Task { () -> Int? in
+        Task {
             let callResult = try await callManager.countDispatcher(callId: callId)
-            return callResult.data?.number_of_angels
+            dispatcherCount = callResult.data?.number_of_angels
         }
-        
-        return try await result.value
     }
     
     private func updateCallId(callId: Int) {
         self.callId = callId
+    }
+    
+    func dispatchEnd(dispatchId: Int) async throws -> Bool {
+        let taskResult = Task { () -> Bool in
+            let result = try await dispatchManager.dispatchEnd(dispatchId: dispatchId)
+            return result.success
+        }
+        return try await taskResult.value
+    }
+    
+    func updateDispatchEnd() {
+        isDispatchEnd.send(true)
+        
+    }
+    
+    func getDispatchEnd() -> CurrentValueSubject<Bool, Never> {
+        return isDispatchEnd
+    }
+    func dispatchAccept(cprCallId: Int) async throws -> (Bool, DispatchInfo?) {
+        let taskResult = Task { () -> (Bool, DispatchInfo?)  in
+            let result = try await dispatchManager.dispatchAccept(cprCallId: cprCallId)
+            return (result.success, result.data)
+        }
+        return try await taskResult.value
+    }
+    func userReport(reportInfo: ReportInfo) async throws -> Bool {
+        let taskResult = Task { () -> Bool in
+            let result = try await dispatchManager.userReport(reportInfo: reportInfo)
+            return result.success
+        }
+        return try await taskResult.value
     }
 }

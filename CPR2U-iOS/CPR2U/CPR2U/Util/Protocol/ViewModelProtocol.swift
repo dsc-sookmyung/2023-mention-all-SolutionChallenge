@@ -7,6 +7,13 @@
 
 import Foundation
 
+protocol AuthViewModelType {
+    associatedtype Input
+    associatedtype Output
+
+    func transform(loginPhase: LoginPhase, input: Input) -> Output
+}
+
 protocol DefaultViewModelType {
     associatedtype Input
     associatedtype Output

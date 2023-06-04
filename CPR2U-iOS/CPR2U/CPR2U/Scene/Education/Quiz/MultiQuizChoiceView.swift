@@ -30,6 +30,8 @@ final class MultiQuizChoiceView: QuizChoiceView {
     }
     
     override func setUpConstraints() {
+        let make = Constraints.shared
+        
         let stackView   = UIStackView()
         stackView.axis  = NSLayoutConstraint.Axis.vertical
         stackView.distribution  = UIStackView.Distribution.equalSpacing
@@ -39,30 +41,19 @@ final class MultiQuizChoiceView: QuizChoiceView {
         self.addSubview(stackView)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
-        
-        choices.forEach({
-            stackView.addSubview($0)
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            
-            $0.widthAnchor.constraint(equalToConstant: 334).isActive = true
-            $0.heightAnchor.constraint(equalToConstant: 52).isActive = true
-            $0.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        })
-        
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: self.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            stackView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            stackView.widthAnchor.constraint(equalToConstant: 260)
+            stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: make.space12),
+            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -make.space12)
         ])
         
-        NSLayoutConstraint.activate([
-            choices[0].topAnchor.constraint(equalTo: stackView.topAnchor),
-            choices[1].topAnchor.constraint(equalTo: choices[0].bottomAnchor, constant: 26),
-            choices[2].topAnchor.constraint(equalTo: choices[1].bottomAnchor, constant: 26),
-            choices[3].topAnchor.constraint(equalTo: choices[2].bottomAnchor, constant: 26)
-        ])
-        
+        choices.forEach({
+            stackView.addArrangedSubview($0)
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            $0.heightAnchor.constraint(equalToConstant: 52).isActive = true
+            $0.widthAnchor.constraint(equalTo: stackView.widthAnchor).isActive = true
+        })
         answerCenterPosition = choices[1].center
     }
     
@@ -73,9 +64,7 @@ final class MultiQuizChoiceView: QuizChoiceView {
             $0.layer.borderColor = UIColor.mainRed.cgColor
             $0.layer.cornerRadius = 20
             $0.titleLabel?.font = UIFont(weight: .regular, size: 26)
-            $0.titleLabel?.minimumScaleFactor = 0.15
             $0.titleLabel?.numberOfLines = 1
-            $0.titleLabel?.adjustsFontSizeToFitWidth = true
             $0.titleLabel?.lineBreakMode = NSLineBreakMode.byClipping
             $0.setTitleColor(.mainBlack, for: .normal)
         })

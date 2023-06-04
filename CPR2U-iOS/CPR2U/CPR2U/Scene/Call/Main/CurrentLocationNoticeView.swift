@@ -7,11 +7,16 @@
 
 import UIKit
 
+enum LocationInfo {
+    case originLocation
+    case targetLocation
+}
+
 class CurrentLocationNoticeView: UIView {
 
     private let pinImageView: UIImageView = {
         let view = UIImageView()
-        let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .light, scale: .medium)
+        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .light, scale: .medium)
         guard let img = UIImage(systemName: "mappin.circle", withConfiguration: config)?.withTintColor(.mainRed).withRenderingMode(.alwaysOriginal) else { return UIImageView() }
         view.image = img
         return view
@@ -26,10 +31,10 @@ class CurrentLocationNoticeView: UIView {
         return label
     }()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(locationInfo: LocationInfo) {
+        super.init(frame: CGRect.zero)
         
-        setUpConstraints()
+        setUpConstraints(locationInfo: locationInfo)
         setUpStyle()
     }
     
@@ -37,12 +42,36 @@ class CurrentLocationNoticeView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setUpConstraints() {
+    private func setUpConstraints(locationInfo: LocationInfo) {
         let make = Constraints.shared
+        
+        let stackView   = UIStackView()
+        stackView.axis  = NSLayoutConstraint.Axis.vertical
+        stackView.distribution  = UIStackView.Distribution.equalSpacing
+        stackView.alignment = UIStackView.Alignment.leading
+        stackView.spacing   = 0
+        
+        if locationInfo == .targetLocation {
+            let descriptionLabel = UILabel()
+            descriptionLabel.font = UIFont(weight: .regular, size: 12)
+            descriptionLabel.textAlignment = .left
+            descriptionLabel.textColor = UIColor(rgb: 0x939393)
+            descriptionLabel.text = "patient_loc_txt".localized()
+            
+            stackView.addArrangedSubview(descriptionLabel)
+            
+            NSLayoutConstraint.activate([
+                descriptionLabel.widthAnchor.constraint(equalToConstant: 180),
+                descriptionLabel.heightAnchor.constraint(equalToConstant: 14)
+            ])
+        }
+        
+        stackView.addArrangedSubview(locationLabel)
+        
         
         [
             pinImageView,
-            locationLabel
+            stackView
         ].forEach({
             self.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -56,9 +85,15 @@ class CurrentLocationNoticeView: UIView {
         ])
         
         NSLayoutConstraint.activate([
-            locationLabel.leadingAnchor.constraint(equalTo: pinImageView.trailingAnchor, constant: make.space8),
-            locationLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -make.space8),
-            locationLabel.heightAnchor.constraint(equalToConstant: 28)
+            stackView.leadingAnchor.constraint(equalTo: pinImageView.trailingAnchor, constant: make.space10),
+            stackView.centerYAnchor.constraint(equalTo: pinImageView.centerYAnchor),
+            stackView.widthAnchor.constraint(equalToConstant: 300),
+            stackView.heightAnchor.constraint(equalToConstant: 38)
+        ])
+        
+        NSLayoutConstraint.activate([
+            locationLabel.widthAnchor.constraint(equalToConstant: 300),
+            locationLabel.heightAnchor.constraint(equalToConstant: 24)
         ])
     }
     
@@ -66,7 +101,7 @@ class CurrentLocationNoticeView: UIView {
         backgroundColor = .white
         self.layer.borderColor = UIColor.mainRed.cgColor
         self.layer.borderWidth = 2
-        self.layer.cornerRadius = 20
+        self.layer.cornerRadius = 16
     }
     
     func setUpLocationLabelText(as str: String) {

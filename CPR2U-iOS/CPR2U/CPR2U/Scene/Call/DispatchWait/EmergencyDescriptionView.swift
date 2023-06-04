@@ -14,7 +14,7 @@ final class EmergencyDescriptionView: UIView {
         label.font = UIFont(weight: .bold, size: 20)
         label.textAlignment = .left
         label.textColor = .mainBlack
-        label.text = "Call 911"
+        label.text = "call_ins_txt".localized()
         return label
     }()
     
@@ -24,7 +24,7 @@ final class EmergencyDescriptionView: UIView {
         label.textAlignment = .left
         label.numberOfLines = 4
         label.textColor = .mainBlack
-        label.text = "Calling 911 is the first priority. Ask the people around you to report or perform CPR after reporting. If the report is false, you will be restricted from using the app."
+        label.text = "call_des_txt".localized()
         return label
     }()
     
@@ -67,6 +67,6 @@ final class EmergencyDescriptionView: UIView {
     
     private func setUpStyle() {
         backgroundColor = .white
-        self.layer.cornerRadius = 8
+        self.layer.cornerRadius = 28
     }
 }

@@ -36,7 +36,4 @@ struct UserDefaultsManager {
     
     @UserDefaultWrapper(key: "isCertificateNotice", defaultValue: false)
     static var isCertificateNotice
-    
-    @UserDefaultWrapper(key: "isAddressSet", defaultValue: false)
-    static var isAddressSet
 }

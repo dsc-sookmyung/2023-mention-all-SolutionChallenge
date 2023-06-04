@@ -9,6 +9,7 @@ import Combine
 import CombineCocoa
 import UIKit
 
+// TODO: UI/UX Question
 final class SMSCodeVerificationViewController: UIViewController {
     private let authManager = AuthManager(service: APIManager())
     
@@ -16,7 +17,7 @@ final class SMSCodeVerificationViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont(weight: .bold, size: 24)
         label.textColor = .mainBlack
-        label.text = "Enter Code"
+        label.text = "code_ins_txt".localized()
         return label
     }()
     
@@ -24,7 +25,7 @@ final class SMSCodeVerificationViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont(weight: .regular, size: 14)
         label.textColor = .mainBlack
-        label.text = "An SMS code was sent to"
+        label.text = "code_des_txt".localized()
         return label
     }()
     
@@ -33,7 +34,7 @@ final class SMSCodeVerificationViewController: UIViewController {
         label.font = UIFont(weight: .bold, size: 16)
         label.textAlignment = .left
         label.textColor = .mainBlack
-        label.text = self.viewModel.getPhoneNumber()
+        label.text = "+82 \(self.viewModel.phoneNumber)"
         return label
     }()
     
@@ -47,7 +48,8 @@ final class SMSCodeVerificationViewController: UIViewController {
         label.font = UIFont(weight: .regular, size: 14)
         label.textAlignment = .right
         label.textColor = .mainRed
-        label.text = "Not receiveing the code?"
+        label.text = "code_resend_ins_txt".localized()
+        label.isUserInteractionEnabled = true
         return label
     }()
     
@@ -58,7 +60,7 @@ final class SMSCodeVerificationViewController: UIViewController {
         button.backgroundColor = .mainLightGray
         button.layer.cornerRadius = 27.5
         button.isUserInteractionEnabled = false
-        button.setTitle("CONFIRM", for: .normal)
+        button.setTitle("confirm".localized(), for: .normal)
         return button
     }()
     
@@ -90,25 +92,22 @@ final class SMSCodeVerificationViewController: UIViewController {
         
         setUpConstraints()
         setUpStyle()
+        setUpAction()
         setUpLayerName()
-        setUpDelegate()
         setUpKeyboard()
         bind(viewModel: viewModel)
     }
     
     private func setUpConstraints() {
         
-        let space4: CGFloat = 4
-        let space8: CGFloat = 8
-        let space16: CGFloat = 16
-        
+        let make = Constraints.shared
         let safeArea = view.safeAreaLayoutGuide
         
         let smsCodeInputStackView   = UIStackView()
         smsCodeInputStackView.axis  = NSLayoutConstraint.Axis.horizontal
         smsCodeInputStackView.distribution  = UIStackView.Distribution.equalSpacing
         smsCodeInputStackView.alignment = UIStackView.Alignment.center
-        smsCodeInputStackView.spacing   = 12
+        smsCodeInputStackView.spacing   = make.space12
         
         [
             instructionLabel,
@@ -123,23 +122,23 @@ final class SMSCodeVerificationViewController: UIViewController {
         })
         
         NSLayoutConstraint.activate([
-            instructionLabel.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: space16),
-            instructionLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
-            instructionLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -space16),
+            instructionLabel.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: make.space16),
+            instructionLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
+            instructionLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space16),
             instructionLabel.heightAnchor.constraint(equalToConstant: 32)
         ])
         
         NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: instructionLabel.bottomAnchor, constant: space4),
-            descriptionLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
-            descriptionLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: space16),
+            descriptionLabel.topAnchor.constraint(equalTo: instructionLabel.bottomAnchor, constant: make.space4),
+            descriptionLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
+            descriptionLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: make.space16),
             descriptionLabel.heightAnchor.constraint(equalToConstant: 22)
         ])
         
         NSLayoutConstraint.activate([
-            phoneNumberLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: space4),
-            phoneNumberLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
-            phoneNumberLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -space16),
+            phoneNumberLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: make.space4),
+            phoneNumberLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
+            phoneNumberLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space16),
             phoneNumberLabel.heightAnchor.constraint(equalToConstant: 22)
         ])
         
@@ -147,9 +146,9 @@ final class SMSCodeVerificationViewController: UIViewController {
         smsCodeInputStackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            smsCodeInputStackView.topAnchor.constraint(equalTo: phoneNumberLabel.bottomAnchor, constant: space16),
-            smsCodeInputStackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
-            smsCodeInputStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -space16),
+            smsCodeInputStackView.topAnchor.constraint(equalTo: phoneNumberLabel.bottomAnchor, constant: make.space16),
+            smsCodeInputStackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
+            smsCodeInputStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space16),
             smsCodeInputStackView.heightAnchor.constraint(equalToConstant: 54)
         ])
         
@@ -170,17 +169,17 @@ final class SMSCodeVerificationViewController: UIViewController {
         })
         
         NSLayoutConstraint.activate([
-            codeResendLabel.topAnchor.constraint(equalTo: smsCodeInputStackView.bottomAnchor, constant: space8),
-            codeResendLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -space16),
+            codeResendLabel.topAnchor.constraint(equalTo: smsCodeInputStackView.bottomAnchor, constant: make.space8),
+            codeResendLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space16),
             codeResendLabel.widthAnchor.constraint(equalToConstant: 300),
             codeResendLabel.heightAnchor.constraint(equalToConstant: 24),
             
         ])
         
-        confirmButtonBottomConstraints = confirmButton.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -space16)
+        confirmButtonBottomConstraints = confirmButton.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -make.space16)
         NSLayoutConstraint.activate([
-            confirmButton.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
-            confirmButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -space16),
+            confirmButton.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
+            confirmButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space16),
             confirmButtonBottomConstraints,
             confirmButton.heightAnchor.constraint(equalToConstant: 55)
         ])
@@ -197,12 +196,6 @@ final class SMSCodeVerificationViewController: UIViewController {
         }
     }
     
-    private func setUpDelegate() {
-        [smsCodeInputView1, smsCodeInputView2, smsCodeInputView3, smsCodeInputView4].forEach({
-            $0.smsCodeTextField.delegate = self
-        })
-    }
-    
     private func setUpKeyboard() {
         smsCodeInputView1.smsCodeTextField.becomeFirstResponder()
         NotificationCenter.default.addObserver(self, selector:#selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -214,14 +207,26 @@ final class SMSCodeVerificationViewController: UIViewController {
         let smsCodeViews = [smsCodeInputView1, smsCodeInputView2, smsCodeInputView3, smsCodeInputView4]
         
         for index in 0...3 {
+            
+            smsCodeViews[index].smsCodeTextField.controlEventPublisher(for: .editingDidBegin).sink {
+                let textField = smsCodeViews[index].smsCodeTextField
+                textField.text = ""
+                guard let textFieldLayerName = textField.layer.name else { return }
+                guard let index = Int(textFieldLayerName) else { return }
+                self.smsCodeCheckArr[index] = false
+            }
+            .store(in: &cancellables)
+            
             smsCodeViews[index].smsCodeTextField.textPublisher.sink {
-                if $0.count == 1 {
+                
+                guard let textLength = $0?.count else { return }
+                if textLength == 1 {
                     if index != 3 {
                         smsCodeViews[(index+1)].smsCodeTextField.becomeFirstResponder()
                         smsCodeViews[(index+1)].smsCodeTextField.text = ""
                     }
                     self.smsCodeCheckArr[index] = true
-                } else if $0.count > 1 && index == 3 {
+                } else if textLength > 1 && index == 3 {
                     smsCodeViews[(index)].smsCodeTextField.text?.removeFirst()
                 }
             }
@@ -231,6 +236,7 @@ final class SMSCodeVerificationViewController: UIViewController {
         confirmButton.tapPublisher.sink { [self] in
             Task {
                 if smsCodeVerify() {
+                    // MARK: 회원가입 관련 userVerify 메소드는 NicknameVC에서 호출 예정
                     let isUser = try await viewModel.userVerify()
                     print("USER CHECK: ", isUser)
                     if isUser {
@@ -248,6 +254,18 @@ final class SMSCodeVerificationViewController: UIViewController {
         }.store(in: &cancellables)
     }
     
+    private func setUpAction() {
+        let tapGesture = UITapGestureRecognizer()
+        
+        codeResendLabel.addGestureRecognizer(tapGesture)
+        tapGesture.tapPublisher.sink { [weak self] _ in
+            Task {
+                guard let phoneNumber = self?.viewModel.phoneNumber else { return }
+                _ = try await self?.viewModel.phoneNumberVerify(phoneNumber: phoneNumber)
+            }
+        }.store(in: &cancellables)
+    }
+    
     @objc private func keyboardWillShow(_ notification: Notification) {
         if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardHeight = keyboardFrame.cgRectValue.height
@@ -258,18 +276,8 @@ final class SMSCodeVerificationViewController: UIViewController {
     }
     
     @objc private func keyboardWillHide(_ notification: Notification) {
-        confirmButtonBottomConstraints.constant = -16
+        confirmButtonBottomConstraints.constant = Constraints.shared.space16
         view.layoutIfNeeded()
-    }
-}
-
-extension SMSCodeVerificationViewController: UITextFieldDelegate {
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.text = ""
-        guard let textFieldLayerName = textField.layer.name else { return }
-        guard let index = Int(textFieldLayerName) else { return }
-        self.smsCodeCheckArr[index] = false
-        
     }
 }
 
@@ -278,6 +286,6 @@ extension SMSCodeVerificationViewController {
         let userInput = [smsCodeInputView1, smsCodeInputView2, smsCodeInputView3, smsCodeInputView4]
             .compactMap{$0.smsCodeTextField.text}
             .reduce("") { return $0 + $1 }
-        return userInput == viewModel.getSMSCode()
+        return userInput == viewModel.smsCode
     }
 }

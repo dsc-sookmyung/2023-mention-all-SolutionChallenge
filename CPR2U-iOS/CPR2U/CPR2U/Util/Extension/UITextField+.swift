@@ -2,17 +2,25 @@
 //  UITextField+.swift
 //  CPR2U
 //
-//  Created by 황정현 on 2023/03/06.
-//
+//  Created by 황정현 on 2023/05/24.
+//  https://stackoverflow.com/questions/2694411/text-inset-for-uitextfield
 
 import UIKit
-import Combine
 
-extension UITextField {
-    var textPublisher: AnyPublisher<String, Never> {
-        controlPublisher(for: .editingChanged)
-            .map { $0 as! UITextField }
-            .map { $0.text! }
-            .eraseToAnyPublisher()
+class TextField: UITextField {
+    let inset: CGFloat = 10
+
+    // placeholder position
+    override func textRect(forBounds: CGRect) -> CGRect {
+        return forBounds.insetBy(dx: self.inset , dy: self.inset)
+    }
+
+    // text position
+    override func editingRect(forBounds: CGRect) -> CGRect {
+        return forBounds.insetBy(dx: self.inset , dy: self.inset)
+    }
+
+    override func placeholderRect(forBounds: CGRect) -> CGRect {
+        return forBounds.insetBy(dx: self.inset, dy: self.inset)
     }
 }

@@ -11,12 +11,20 @@ import UIKit
 
 final class DispatchWaitViewController: UIViewController {
 
-    private let mainLabel: UILabel = {
+    private let exclamationImageView: UIImageView = {
+        let view = UIImageView()
+        view.image = UIImage(named: "exclamation_mark.png")
+        return view
+    }()
+    
+    
+    private let noticeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(weight: .bold, size: 64)
+        label.font = UIFont(weight: .bold, size: 24)
         label.textAlignment = .center
         label.textColor = .white
-        label.text = "Call"
+        label.text = "approch_des_txt".localized()
+        label.numberOfLines = 3
         return label
     }()
     
@@ -55,7 +63,8 @@ final class DispatchWaitViewController: UIViewController {
     
     private func setUpConstraints() {
         [
-            mainLabel,
+            exclamationImageView,
+            noticeLabel,
             approachNoticeView,
             emergencyDescriptionView
         ].forEach({
@@ -71,9 +80,16 @@ final class DispatchWaitViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            mainLabel.bottomAnchor.constraint(equalTo: approachNoticeView.topAnchor, constant: -36),
-            mainLabel.widthAnchor.constraint(equalToConstant: 200),
-            mainLabel.heightAnchor.constraint(equalToConstant: 80)
+            noticeLabel.bottomAnchor.constraint(equalTo: approachNoticeView.topAnchor, constant: -36),
+            noticeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            noticeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            noticeLabel.heightAnchor.constraint(equalToConstant: 108)
+        ])
+        
+        NSLayoutConstraint.activate([
+            exclamationImageView.bottomAnchor.constraint(equalTo: noticeLabel.topAnchor, constant: -Constraints.shared.space24),
+            exclamationImageView.widthAnchor.constraint(equalToConstant: 36),
+            exclamationImageView.heightAnchor.constraint(equalToConstant: 36)
         ])
         
         NSLayoutConstraint.activate([

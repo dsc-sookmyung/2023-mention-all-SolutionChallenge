@@ -18,8 +18,7 @@ final class LectureViewController: UIViewController {
     private let webView = WKWebView()
     
     private let noticeView: LectureNoticeView = {
-        let view = LectureNoticeView(noticeAs: .pf)
-        view.setPFResultNotice(isPass: true)
+        let view = LectureNoticeView(noticeAs: .lecturePass)
         return view
     }()
     

@@ -10,27 +10,13 @@ import UIKit
 
 final class ApproachNoticeView: UIView {
 
-    private let peopleImageView: UIImageView = {
-        let view = UIImageView()
-        view.image = UIImage(named: "people.png")
-        return view
-    }()
-    
-    private lazy var peopleCountLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(weight: .bold, size: 48)
-        label.textColor = .mainRed
-        label.textAlignment = .center
-        label.text = "0"
-        return label
-    }()
-    
     private let approachLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(weight: .bold, size: 20)
+        label.font = UIFont(weight: .regular, size: 18)
         label.textColor = .black
-        label.textAlignment = .left
-        label.text = "Approaching"
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        label.text = "angel_approach_notice_default_txt".localized()
         return label
     }()
     
@@ -55,7 +41,7 @@ final class ApproachNoticeView: UIView {
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .mainRed
         button.layer.cornerRadius = 27.5
-        button.setTitle("SITUATION ENDED", for: .normal)
+        button.setTitle("siuation_end_des_txt".localized(), for: .normal)
         return button
     }()
     
@@ -78,40 +64,6 @@ final class ApproachNoticeView: UIView {
     
     private func setUpConstraints() {
         let make = Constraints.shared
-        
-        let approachStackView = UIStackView()
-        approachStackView.axis  = NSLayoutConstraint.Axis.horizontal
-        approachStackView.distribution  = UIStackView.Distribution.equalSpacing
-        approachStackView.alignment = UIStackView.Alignment.center
-        approachStackView.spacing   = 8
-        
-        [
-            peopleImageView,
-            peopleCountLabel,
-            approachLabel
-        ].forEach({
-            approachStackView.addSubview($0)
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            $0.centerYAnchor.constraint(equalTo: approachStackView.centerYAnchor).isActive = true
-        })
-        
-        NSLayoutConstraint.activate([
-            peopleImageView.leadingAnchor.constraint(equalTo: approachStackView.leadingAnchor),
-            peopleImageView.widthAnchor.constraint(equalToConstant: 50),
-            peopleImageView.heightAnchor.constraint(equalToConstant: 50)
-        ])
-        
-        NSLayoutConstraint.activate([
-            peopleCountLabel.leadingAnchor.constraint(equalTo: peopleImageView.trailingAnchor),
-            peopleCountLabel.trailingAnchor.constraint(equalTo: approachLabel.leadingAnchor),
-            peopleCountLabel.heightAnchor.constraint(equalToConstant: 50)
-        ])
-        
-        NSLayoutConstraint.activate([
-            approachLabel.trailingAnchor.constraint(equalTo: approachStackView.trailingAnchor),
-            approachLabel.widthAnchor.constraint(equalToConstant: 128),
-            approachLabel.heightAnchor.constraint(equalToConstant: 50)
-        ])
         
         let timeStackView   = UIStackView()
         timeStackView.axis  = NSLayoutConstraint.Axis.horizontal
@@ -141,7 +93,7 @@ final class ApproachNoticeView: UIView {
         ])
         
         [
-            approachStackView,
+            approachLabel,
             timeStackView,
             situationEndButton
         ].forEach({
@@ -150,17 +102,17 @@ final class ApproachNoticeView: UIView {
         })
         
         NSLayoutConstraint.activate([
-            approachStackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 36),
-            approachStackView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            approachStackView.widthAnchor.constraint(equalToConstant: 222),
-            approachStackView.heightAnchor.constraint(equalToConstant: 50)
-        ])
-        
-        NSLayoutConstraint.activate([
             timeStackView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             timeStackView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             timeStackView.widthAnchor.constraint(equalToConstant: 182),
             timeStackView.heightAnchor.constraint(equalToConstant: 50)
+        ])
+        
+        NSLayoutConstraint.activate([
+            approachLabel.bottomAnchor.constraint(equalTo: timeStackView.topAnchor, constant: -make.space12),
+            approachLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            approachLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            approachLabel.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         NSLayoutConstraint.activate([
@@ -173,7 +125,7 @@ final class ApproachNoticeView: UIView {
     
     private func setUpStyle() {
         backgroundColor = .white
-        self.layer.cornerRadius = 24
+        self.layer.cornerRadius = 32
     }
     
     
@@ -184,6 +136,13 @@ final class ApproachNoticeView: UIView {
                 self.parentViewController().dismiss(animated: true)
             }
         }.store(in: &cancellables)
+        
+        viewModel.$dispatcherCount
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] count in
+                guard let count = count else { return }
+                self?.updateApproachLabelText(count: count)
+            }.store(in: &cancellables)
     }
     
     private func setTimer() {
@@ -192,13 +151,10 @@ final class ApproachNoticeView: UIView {
             .autoconnect()
             .scan(0) { counter, _ in counter + 1 }
             .sink { [self] counter in
-                
                 if counter % 15 == 0 {
                     Task {
-                        let dispatcherNumber = try await viewModel.countDispatcher()
-                        peopleCountLabel.text = "\(dispatcherNumber ?? 0)"
+                        viewModel.countDispatcher()
                     }
-                    
                 }
                 if counter == 301 {
                     viewModel.timer?.connect().cancel()
@@ -206,6 +162,16 @@ final class ApproachNoticeView: UIView {
                     timeLabel.text = counter.numberAsTime()
                 }
             }.store(in: &cancellables)
+    }
+    
+    private func updateApproachLabelText(count: Int) {
+        if count > 0 {
+            let localizedStr = String(format: "angel_approach_notice_%dmatched_txt".localized(), count)
+            approachLabel.text = localizedStr
+            print(count)
+        } else {
+            approachLabel.text = "angel_approach_notice_default_txt".localized()
+        }
     }
 
 }

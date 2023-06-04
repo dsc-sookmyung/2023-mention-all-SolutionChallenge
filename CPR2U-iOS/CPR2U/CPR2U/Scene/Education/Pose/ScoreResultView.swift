@@ -15,7 +15,7 @@ final class ScoreResultView: UIView {
         label.font = UIFont(weight: .bold, size: 24)
         label.textColor = .mainBlack
         label.textAlignment = .center
-        label.text = "Score"
+        label.text = "score".localized()
         return label
     }()
     
@@ -101,12 +101,39 @@ final class ScoreResultView: UIView {
     }
     
     func setUpScore(score: Int) {
-        scoreLabel.text = "\(score)"
+        let scoreStr = "\(score)/100"
+        scoreLabel.text = scoreStr
+        scoreLabel.attributedText = arrangeScoreText(text: scoreLabel.text ?? "")
         
         if score >= 80 {
-            descriptionLabel.text = "PASSED!"
+            descriptionLabel.text = "pass".localized()
         } else {
-            descriptionLabel.text = "FAILED..."
+            descriptionLabel.text = "fail".localized()
         }
+        print(scoreLabel.text)
     }
+    
+    private func arrangeScoreText(text: String) -> NSAttributedString {
+        var range: Int = 0
+        let attributedString = NSMutableAttributedString(string: text)
+        if let rangeS = text.range(of: "/") {
+            range = text.distance(from: text.startIndex, to: rangeS.lowerBound)
+        }
+        
+        let realScoreAttributes: [NSAttributedString.Key: Any] = [
+            .font : UIFont(weight: .bold, size: 72) ?? UIFont(),
+            .foregroundColor : UIColor.mainWhite
+        ]
+        
+        let defaultScoreAttributes: [NSAttributedString.Key: Any] = [
+            .font : UIFont(weight: .bold, size: 32) ?? UIFont(),
+            .foregroundColor : UIColor.mainLightRed
+        ]
+        
+        attributedString.addAttributes(realScoreAttributes, range: NSRange(location: 0, length: range))
+        attributedString.addAttributes(defaultScoreAttributes, range: NSRange(location: range, length: attributedString.length - range))
+        
+        return attributedString
+    }
+    
 }

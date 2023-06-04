@@ -17,7 +17,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         
         self.window = window
-//        let navVC = UINavigationController(rootViewController: EducationMainViewController())
         let vc = AutoLoginViewController()
         window.rootViewController =  vc
         window.backgroundColor = .white

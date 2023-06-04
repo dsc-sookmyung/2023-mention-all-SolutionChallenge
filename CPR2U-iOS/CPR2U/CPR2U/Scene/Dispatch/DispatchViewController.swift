@@ -10,48 +10,40 @@ import CombineCocoa
 import GoogleMaps
 import UIKit
 
-struct CallerCompactInfo {
-    let callerId: Int
-    let latitude: Double
-    let longitude: Double
-    let callerAddress: String
-}
-
 final class DispatchViewController: UIViewController {
-    private let callerLocationNoticeView = CurrentLocationNoticeView()
+    
+    private let callerLocationNoticeView = CurrentLocationNoticeView(locationInfo: .targetLocation)
     
     private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis  = NSLayoutConstraint.Axis.horizontal
-        stackView.distribution  = UIStackView.Distribution.equalSpacing
         stackView.alignment = UIStackView.Alignment.center
         stackView.spacing   = 12
-        stackView.layer.borderColor = UIColor(rgb: 0x938C8C).cgColor
+        stackView.backgroundColor = UIColor(rgb: 0xF5F5F5)
         stackView.layer.cornerRadius = 16
-        stackView.layer.borderWidth = 1
         return stackView
     }()
     
     private let stackViewDecoLine: UIView = {
         let view = UIView()
-        view.backgroundColor = .mainLightGray
+        view.backgroundColor = UIColor(rgb: 0xBCBCBC)
         return view
     }()
     
-    private let durationView: DispatchDescriptionView = {
+    private let startTimeView: DispatchDescriptionView = {
         let view = DispatchDescriptionView()
-        view.setUpComponent(imageName: "time_check.png", type: .duration)
+        view.setUpComponent(imageName: "time_black.png", type: .startTime)
         return view
     }()
     
     private let distanceView: DispatchDescriptionView = {
         let view = DispatchDescriptionView()
-        view.setUpComponent(imageName: "map.png", type: .distance)
+        view.setUpComponent(imageName: "map_black.png", type: .distance)
         return view
     }()
     
-    private lazy var dispatchTimerView: DispatchTimerView = {
-        let view = DispatchTimerView(calledTime: Date())
+    lazy var dispatchTimerView: DispatchTimerView = {
+        let view = DispatchTimerView(callerInfo: callerInfo, calledTime: Date(), viewModel: viewModel)
         view.layer.borderColor = UIColor(rgb: 0x938C8C).cgColor
         view.layer.cornerRadius = 16
         view.layer.borderWidth = 1
@@ -59,37 +51,38 @@ final class DispatchViewController: UIViewController {
         return view
     }()
     
+    private lazy var dispatchDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(weight: .regular, size: 14)
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        label.textColor = UIColor(rgb: 0x454545)
+        label.text = "dispatch_des_txt".localized()
+        return label
+    }()
     private let dispatchButton: UIButton = {
         let button = UIButton()
         button.titleLabel?.font = UIFont(weight: .bold, size: 18)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .mainRed
         button.layer.cornerRadius = 27.5
-        button.setTitle("DISPATCH", for: .normal)
+        button.setTitle("dispatch_tab_t".localized(), for: .normal)
         return button
     }()
     
-    private let reportLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(weight: .regular, size: 14)
-        label.textColor = .mainBlack
-        label.textAlignment = .right
-        label.text = "Wrong Report? Report"
-        label.isHidden = true
-        label.isUserInteractionEnabled = true
-        return label
-    }()
-    
-    private let manager = DispatchManager(service: APIManager())
-    private let callerInfo: CallerCompactInfo
+    private let viewModel: CallViewModel
+    private let callerInfo: CallerInfo
     private let userLocation: CLLocationCoordinate2D
     private var dispatchId: Int?
     private var isDispatched: Bool = false
     private var cancellables = Set<AnyCancellable>()
     
-    init (userLocation: CLLocationCoordinate2D, callerInfo: CallerCompactInfo) {
+    var noticeView: CustomNoticeView?
+    
+    init (userLocation: CLLocationCoordinate2D, callerInfo: CallerInfo, viewModel: CallViewModel) {
         self.userLocation = userLocation
         self.callerInfo = callerInfo
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -99,14 +92,14 @@ final class DispatchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         setUpConstraints()
         setUpStyle()
         setUpComponent()
         bind()
-        setUpAction()
         setupSheet()
-        calculateDurationNDistance()
+        calculateDistance()
+        calculateTime(dateStr: callerInfo.called_at)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -121,8 +114,8 @@ final class DispatchViewController: UIViewController {
             callerLocationNoticeView,
             stackView,
             dispatchTimerView,
+            dispatchDescriptionLabel,
             dispatchButton,
-            reportLabel
         ].forEach({
             view.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -137,25 +130,26 @@ final class DispatchViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: callerLocationNoticeView.bottomAnchor, constant: make.space8),
-            stackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space8),
-            stackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space8),
+            stackView.topAnchor.constraint(equalTo: callerLocationNoticeView.bottomAnchor, constant: make.space16),
+            stackView.leadingAnchor.constraint(equalTo: callerLocationNoticeView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: callerLocationNoticeView.trailingAnchor),
             stackView.heightAnchor.constraint(equalToConstant: 108)
         ])
         
         NSLayoutConstraint.activate([
-            dispatchTimerView.topAnchor.constraint(equalTo: callerLocationNoticeView.bottomAnchor, constant: make.space8),
-            dispatchTimerView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space8),
-            dispatchTimerView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space8),
+            dispatchTimerView.topAnchor.constraint(equalTo: callerLocationNoticeView.bottomAnchor, constant: make.space16),
+            dispatchTimerView.leadingAnchor.constraint(equalTo: callerLocationNoticeView.leadingAnchor),
+            dispatchTimerView.trailingAnchor.constraint(equalTo: callerLocationNoticeView.trailingAnchor),
             dispatchTimerView.heightAnchor.constraint(equalToConstant: 108)
         ])
+        dispatchTimerView.sizeToFit()
         
         [
-            durationView,
+            startTimeView,
             stackViewDecoLine,
             distanceView,
         ].forEach({
-            stackView.addSubview($0)
+            stackView.addArrangedSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
             $0.centerYAnchor.constraint(equalTo: stackView.centerYAnchor).isActive = true
         })
@@ -167,15 +161,20 @@ final class DispatchViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            durationView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 56),
-            durationView.widthAnchor.constraint(equalToConstant: 75),
-            durationView.heightAnchor.constraint(equalToConstant: 70)
+            startTimeView.widthAnchor.constraint(equalToConstant: 75),
+            startTimeView.heightAnchor.constraint(equalToConstant: 58)
         ])
         
         NSLayoutConstraint.activate([
-            distanceView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -56),
             distanceView.widthAnchor.constraint(equalToConstant: 75),
-            distanceView.heightAnchor.constraint(equalToConstant: 70)
+            distanceView.heightAnchor.constraint(equalToConstant: 58)
+        ])
+        
+        NSLayoutConstraint.activate([
+            dispatchDescriptionLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: make.space16),
+            dispatchDescriptionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            dispatchDescriptionLabel.widthAnchor.constraint(equalToConstant: 320),
+            dispatchDescriptionLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
         
         NSLayoutConstraint.activate([
@@ -184,13 +183,6 @@ final class DispatchViewController: UIViewController {
             dispatchButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space8),
             dispatchButton.heightAnchor.constraint(equalToConstant: 55)
         ])
-        
-        NSLayoutConstraint.activate([
-            reportLabel.topAnchor.constraint(equalTo: dispatchButton.bottomAnchor, constant: make.space12),
-            reportLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space8),
-            reportLabel.trailingAnchor.constraint(equalTo: dispatchButton.trailingAnchor),
-            reportLabel.heightAnchor.constraint(equalToConstant: 20)
-        ])
     }
     
     private func setUpStyle() {
@@ -198,39 +190,30 @@ final class DispatchViewController: UIViewController {
     }
     
     private func setUpComponent() {
-        callerLocationNoticeView.setUpLocationLabelText(as: callerInfo.callerAddress)
+        callerLocationNoticeView.setUpLocationLabelText(as: callerInfo.full_address)
     }
     
     private func bind() {
         dispatchButton.tapPublisher.sink { [self] in
             if isDispatched {
+                guard let dispatchId = dispatchId else { return }
                 Task {
-                    guard let dispatchId = dispatchId else { return }
-                    let result = try await manager.dispatchEnd(dispatchId: dispatchId)
-                    if result.success {
+                    let isSucceed = try await viewModel.dispatchEnd(dispatchId: dispatchId)
+                    if isSucceed  {
+                        print("DISMISS!!!")
                         dismiss(animated: true)
+                    } else {
+                        print("CAN'T DISMISS")
                     }
                 }
             } else {
-                Task {
-                    let result = try await manager.dispatchAccept(cprCallId: callerInfo.callerId)
-                    if result.success {
-                        dispatchId = result.data?.dispatch_id
-                        isModalInPresentation = true
-                        dispatchButton.setTitle("ARRIVED", for: .normal)
-                        stackView.isHidden = true
-                        reportLabel.isHidden = false
-                        timerAppear()
-                        dispatchTimerView.setTimer()
-                        isDispatched = true
-                    }
-                }
+                showAlert()
+                
             }
         }.store(in: &cancellables)
     }
     
     private func setupSheet() {
-        
         if let sheet = sheetPresentationController {
             sheet.detents = [.custom { _ in return 300 }]
             sheet.selectedDetentIdentifier = .medium
@@ -244,44 +227,71 @@ final class DispatchViewController: UIViewController {
             self.dispatchTimerView.isHidden = false
         })
     }
-    
-    private func setUpAction() {
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapReportButton))
-        reportLabel.addGestureRecognizer(gesture)
-    }
-    
-    @objc func didTapReportButton() {
-        guard let dispatchId = dispatchId else { return }
-        let vc = ReportViewController(dispatchId: dispatchId, manager: manager)
-        vc.modalPresentationStyle = .fullScreen
-        present(vc, animated: true)
-    }
 }
 
 extension DispatchViewController {
-    func calculateDurationNDistance() {
+    func calculateDistance() {
         let callerLocation = CLLocationCoordinate2D(latitude: callerInfo.latitude, longitude: callerInfo.longitude)
         let rawDistance = GMSGeometryDistance(userLocation, callerLocation)
-        
-        let floorDistance = floor(rawDistance)
-        var duration: Int = 0
+        let floorDistance = calculateDistanceFromCurrentLocation()
         var distanceStr = ""
-        if floorDistance < 100 {
-            duration = 1
+        if floorDistance < 1000 {
+        distanceStr = "\(floorDistance)m"
         } else {
-            duration = Int(ceil(Float(rawDistance/100)))
-            if floorDistance < 1000 {
-            distanceStr = "\(floorDistance)m"
-            } else {
-                let distance: Double = rawDistance/1000
-                distanceStr = String(format: "%.2f", distance) + "km"
-            }
+            let distance: Double = rawDistance/1000
+            distanceStr = String(format: "%.2f", distance) + "km"
+        }
+        distanceView.setUpDescription(text: distanceStr)
+    }
+    
+    func calculateDistanceFromCurrentLocation() -> CLLocationDistance {
+        let callerLocation = CLLocationCoordinate2D(latitude: callerInfo.latitude, longitude: callerInfo.longitude)
+        let rawDistance = GMSGeometryDistance(userLocation, callerLocation)
+        return floor(rawDistance)
+    }
+    
+    func calculateTime(dateStr: String) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy'-'MM'-'dd' 'HH':'mm':'ss"
+        guard let tempDate = dateFormatter.date(from: dateStr) else { return }
+        dateFormatter.dateFormat = "a HH':'mm"
+        let date = dateFormatter.string(from: tempDate)
+        startTimeView.setUpDescription(text: date)
+    }
+    
+    func showAlert() {
+        let alert = UIAlertController(title: "dispatch_ins_txt".localized(), message: "dispatch_alert_txt".localized(), preferredStyle: .alert)
+        
+        let confirm = UIAlertAction(title: "dispatch_tab_t".localized(), style: .default, handler: { [weak self] _ in
+            guard let self = self else { return }
+            self.acceptDispatch()
+        })
+        
+        let cancel = UIAlertAction(title: "cancel".localized(), style: .cancel, handler: nil)
+        [confirm, cancel].forEach {
+            alert.addAction($0)
         }
         
-        print("RAW: \(rawDistance)")
-        print("FLOOR: \(floorDistance)")
-        print(distanceStr)
-        durationView.setUpDescription(text:  "\(duration)m")
-        distanceView.setUpDescription(text: distanceStr)
+        present(alert, animated: true, completion: nil)
+    }
+    
+    private func acceptDispatch() {
+        Task {
+            let result = try await viewModel.dispatchAccept(cprCallId: callerInfo.cpr_call_id)
+            if result.0 {
+                guard let data = result.1 else { return }
+                let dispatchId = data.dispatch_id
+                print("########", dispatchId)
+                isModalInPresentation = true
+                dispatchButton.isHidden = true
+                dispatchDescriptionLabel.isHidden = false
+                stackView.isHidden = true
+                timerAppear()
+                dispatchTimerView.setUpTimerText(startTime: data.called_at.elapsedTime())
+                dispatchTimerView.setTimer(startTime: data.called_at.elapsedTime())
+                isDispatched = true
+                dispatchTimerView.setDispatchComponent(dispatchId: dispatchId)
+            }
+        }
     }
 }

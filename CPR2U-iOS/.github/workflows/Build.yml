@@ -14,6 +14,23 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Make Plist Files
+      run: |
+        echo '
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>baseURL</key>
+            <string>$secrets.BASE_URL</string>
+            <key>googleMapsAPIKey</key>
+            <string>$secrets.MAPS_API_KEY</string>
+        </dict>
+        </plist>
+        ' >> ./CPR2U/CPR2U/Private.plist
+        echo '
+        ' >> ./CPR2U/CPR2U/GoogleService-Info.plist
+        
     - name: Build Xcode
       run: |
         pod install --repo-update --clean-install --project-directory=CPR2U/

@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     // https://stackoverflow.com/questions/28938660/how-to-lock-orientation-of-one-view-controller-to-portrait-mode-only-in-swift
     var orientationLock = UIInterfaceOrientationMask.portrait
+    var isNotificationHandled = false
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         return self.orientationLock
@@ -24,13 +25,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        registerForRemoteNotifications()
-        
         // MARK: FCM Setting
         FirebaseApp.configure()
-        Messaging.messaging().delegate = self
 
         UNUserNotificationCenter.current().delegate = self
+        Messaging.messaging().delegate = self
 
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         UNUserNotificationCenter.current().requestAuthorization(
@@ -57,31 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
     
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        let deviceTokenString = deviceToken.map { String(format: "%02x", $0) }.joined()
-        Messaging.messaging().apnsToken = deviceToken
-    }
-    
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-    }
-    
-    private func registerForRemoteNotifications() {
-        
-        // 1. 푸시 center (유저에게 권한 요청 용도)
-        let center = UNUserNotificationCenter.current()
-        center.delegate = self // push처리에 대한 delegate - UNUserNotificationCenterDelegate
-        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
-        center.requestAuthorization(options: options) { (granted, error) in
-            
-            guard granted else {
-                return
-            }
-            
-            DispatchQueue.main.async {
-                // 2. APNs에 디바이스 토큰 등록
-                UIApplication.shared.registerForRemoteNotifications()
-            }
-        }
     }
 }
 
@@ -91,6 +66,7 @@ extension AppDelegate: MessagingDelegate {
         let dataDict:[String: String] = ["token": fcmToken]
         NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
         DeviceTokenManager.deviceToken = fcmToken
+
     }
 }
 
@@ -100,12 +76,14 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.alert, .badge, .sound])
+        completionHandler([.banner, .sound])
     }
-    
+
     // push를 탭한 경우 처리
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        let url = response.notification.request.content.userInfo
+        let userInfo = response.notification.request.content.userInfo
+        print(response.notification)
+        NotificationCenter.default.post(name: Notification.Name("ShowCallerPage"), object: nil, userInfo: userInfo)
     }
 }
 

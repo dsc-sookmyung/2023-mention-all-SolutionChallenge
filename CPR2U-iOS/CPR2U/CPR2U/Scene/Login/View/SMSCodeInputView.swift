@@ -20,14 +20,20 @@ final class SMSCodeInputView: UIView {
             }
         }
     }
-    var smsCodeTextField = UITextField()
+    var smsCodeTextField: UITextField = {
+        let textField = UITextField()
+        textField.font = UIFont(weight: .regular, size: 29)
+        textField.textColor = UIColor(rgb: 0xAC6767)
+        textField.textAlignment = .center
+        textField.keyboardType = .numberPad
+        return textField
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         setUpConstraints()
         setUpStyle()
-        setUpKeyboard()
         
     }
     
@@ -35,32 +41,24 @@ final class SMSCodeInputView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setUpConstraints() {
+    private func setUpConstraints() {
         
         self.addSubview(smsCodeTextField)
         smsCodeTextField.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             smsCodeTextField.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             smsCodeTextField.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            smsCodeTextField.widthAnchor.constraint(equalToConstant: 16),
+            smsCodeTextField.widthAnchor.constraint(equalToConstant: 64),
             smsCodeTextField.heightAnchor.constraint(equalToConstant: 40),
         ])
     }
     
-    func setUpStyle() {
+    private func setUpStyle() {
         self.backgroundColor = UIColor(rgb: 0xFBD6D6)
         
         self.layer.cornerRadius = 5
         self.layer.borderColor = UIColor.mainBlack.cgColor
         self.layer.borderWidth = 0
-        
-        smsCodeTextField.font = UIFont(weight: .regular, size: 29)
-        smsCodeTextField.textColor = UIColor(rgb: 0xAC6767)
-        smsCodeTextField.textAlignment = .center
-    }
-    
-    func setUpKeyboard() {
-        smsCodeTextField.keyboardType = .numberPad
     }
     
 }

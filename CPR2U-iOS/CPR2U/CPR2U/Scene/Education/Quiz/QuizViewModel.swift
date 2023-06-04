@@ -8,7 +8,9 @@
 import Foundation
 import Combine
 
-class QuizViewModel: OutputOnlyViewModelType {
+final class QuizViewModel: OutputOnlyViewModelType {
+    @Published private(set)var quiz: Quiz?
+    
     private var eduManager: EducationManager
     private var quizList: [Quiz] = []
     private var currentQuizIndex: Int = 0
@@ -18,10 +20,10 @@ class QuizViewModel: OutputOnlyViewModelType {
     
     init() {
         eduManager = EducationManager(service: APIManager())
+        receiveQuizList()
     }
     
     struct Output {
-        let quiz: CurrentValueSubject<Quiz, Never>?
         let isCorrect: CurrentValueSubject<Bool, Never>?
         let isQuizEnd: CurrentValueSubject<Bool, Never>
     }
@@ -38,12 +40,6 @@ class QuizViewModel: OutputOnlyViewModelType {
         return quizList[0]
     }
     
-    func currentQuiz() -> Quiz {
-        return quizList[currentQuizIndex]
-    }
-    func currentQuizType() -> QuizType {
-        return quizList[currentQuizIndex].questionType
-    }
     func updateSelectedAnswerIndex(index: Int) {
         selectedAnswerIndex.send(index)
     }
@@ -59,26 +55,28 @@ class QuizViewModel: OutputOnlyViewModelType {
     func transform() -> Output {
         
         if selectedAnswerIndex.value == -1 {
-            return Output(quiz: nil, isCorrect: nil, isQuizEnd: CurrentValueSubject<Bool, Never>(false))
+            return Output(isCorrect: nil, isQuizEnd: CurrentValueSubject<Bool, Never>(false))
         }
         
         var output: Output
         
         if didSelectAnswer {
             let index = selectedAnswerIndex.value
-            let isCorrect = currentQuiz().answerIndex == index
+            let isCorrect = quiz?.answerIndex == index
 
             if isCorrect {
                 correctQuizNum += 1
             }
-            output = Output(quiz: nil, isCorrect: CurrentValueSubject(isCorrect), isQuizEnd: CurrentValueSubject<Bool, Never>(false))
+            output = Output(isCorrect: CurrentValueSubject(isCorrect), isQuizEnd: CurrentValueSubject<Bool, Never>(false))
             didSelectAnswer.toggle()
         } else {
             currentQuizIndex += 1
+            print(currentQuizIndex, "/", quizList.count-1)
             if quizList.count == currentQuizIndex {
-                output = Output(quiz: nil, isCorrect: nil, isQuizEnd: CurrentValueSubject<Bool, Never>(true))
+                output = Output(isCorrect: nil, isQuizEnd: CurrentValueSubject<Bool, Never>(true))
             } else {
-                output = Output(quiz: CurrentValueSubject(quizList[currentQuizIndex]), isCorrect: nil, isQuizEnd: CurrentValueSubject<Bool, Never>(false))
+                quiz = quizList[currentQuizIndex]
+                output = Output(isCorrect: nil, isQuizEnd: CurrentValueSubject<Bool, Never>(false))
                 selectedAnswerIndex.send(-1)
                 didSelectAnswer.toggle()
             }
@@ -86,28 +84,18 @@ class QuizViewModel: OutputOnlyViewModelType {
         return output
     }
     
-    func receiveQuizList() async throws {
-        let result = Task { () -> [QuizInfo]? in
+    func receiveQuizList() {
+        Task {
             let eduResult = try await eduManager.getQuizList()
-            return eduResult.data
-        }
-        
-        do {
-            let data = try await result.value
-            data?.forEach({ item in
-                
-                guard let answerIndex = item.answer_list.map({ $0.id }).firstIndex(of: item.answer) else { return }
-                let answerList = item.answer_list.map { $0.content }
-                let quiz = Quiz(questionType: item.type == 0 ? .ox : .multi, questionNumber: item.index, question: item.question, answerIndex: answerIndex, answerList: answerList, answerDescription: item.reason)
-                quizList.append(quiz)
+            eduResult.data?.forEach({ item in
+                    
+                    guard let answerIndex = item.answer_list.map({ $0.id }).firstIndex(of: item.answer) else { return }
+                    let answerList = item.answer_list.map { $0.content }
+                    let quiz = Quiz(questionType: item.type == 0 ? .ox : .multi, questionNumber: item.index, question: item.question, answerIndex: answerIndex, answerList: answerList, answerDescription: item.reason)
+                    quizList.append(quiz)
             })
-        } catch(let error) {
-            print(error)
+            
+            quiz = quizList[currentQuizIndex]
         }
     }
-
-    func saveQuizResult() async throws{
-        (_, _) = try await eduManager.saveQuizResult(score: 100)
-    }
-    
 }

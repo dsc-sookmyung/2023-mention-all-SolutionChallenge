@@ -8,6 +8,60 @@
 import Combine
 import UIKit
 
+struct CertificateStatus {
+    let status: AngelStatus
+    let leftDay: Int?
+}
+
+enum AngleStatus: String {
+    case adequate = "Adequate"
+    case almost = "Almost Adequate"
+    case notGood = "Not Good"
+    case bad = "Bad"
+    
+    // 팔 각도
+    // CORRECT : NON-CORRECT
+    // 7:3     : 40점
+    // 6:4     : 25점
+    // 5:5     : 10점
+    // 나머지    : 0점
+    var score: Int {
+        switch self {
+        case .adequate:
+            return 40
+        case .almost:
+            return 25
+        case .notGood:
+            return 10
+        case .bad:
+            return 0
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .adequate:
+            return "Good job! Very Nice angle!"
+        case .almost:
+            return "Almost there. Try again"
+        case .notGood:
+            return "Pay more attention to the angle of your arms"
+        case .bad:
+            return "You need some more practice"
+        }
+    }
+    
+    var isSucceed: Bool {
+        switch self {
+        case .adequate:
+            return true
+        case .almost, .notGood, .bad:
+            return false
+        }
+    }
+}
+
+// Tensorflow 관련 수치 Notation은  추후 Refactoring 시 재검토 예정
 enum CompressionRateStatus: String {
     case tooSlow = "Too Slow"
     case slow = "Slow"
@@ -16,18 +70,18 @@ enum CompressionRateStatus: String {
     case tooFast = "Too Fast"
     case wrong = "Wrong"
     
-    // 압박 속도
-    // 190-250 : 33점
-    // 170-270 : 22점
-    // 150-290 : 11점
+    // 압박 속도: 40%
+    // 100 - 130 : 40점
+    // 80 - 150 : 25점
+    // 80 아래 | 150 위 : 10점
     var score: Int {
         switch self {
         case .adequate:
-            return 33
+            return 40
         case .slow, .fast:
-            return 22
+            return 25
         case .tooSlow, .tooFast:
-            return 11
+            return 10
         case .wrong:
             return 0
         }
@@ -49,69 +103,37 @@ enum CompressionRateStatus: String {
             return "Something went wrong. Try Again"
         }
     }
-}
-
-enum AngleStatus: String {
-    case adequate = "Adequate"
-    case almost = "Almost Adequate"
-    case notGood = "Not Good"
-    case bad = "Bad"
     
-    // 팔 각도
-    // CORRECT : NON-CORRECT
-    // 7:3     : 33점
-    // 6:4     : 22점
-    // 5:5     : 11점
-    // 나머지    : 5점
-    var score: Int {
+    var isSucceed: Bool {
         switch self {
         case .adequate:
-            return 33
-        case .almost:
-            return 22
-        case .notGood:
-            return 11
-        case .bad:
-            return 5
+            return true
+        case .tooSlow, .slow, .fast, .tooFast, .wrong:
+            return false
         }
     }
     
-    var description: String {
-        switch self {
-        case .adequate:
-            return "Good job! Very Nice angle!"
-        case .almost:
-            return "Almost there. Try again"
-        case .notGood:
-            return "Pay more attention to the angle of your arms"
-        case .bad:
-            return "You need some more practice"
-        }
-    }
 }
 
 enum PressDepthStatus: String {
     case deep = "Deep"
     case adequate = "Adequate"
     case shallow = "Slightly Shallow"
-    case tooShallow = "Too Shallow"
     case wrong = "Wrong"
     
-    // 압박 깊이
-    // 30 이상    : 15
-    // 18 - 30   : 33
-    // 5 - 18   : 15
-    // 0  - 5.  : 5
+    // 압박 깊이 : 20%
+    // 30 이상    : 10
+    // 18 - 30   : 20
+    // 5 - 18   : 10
+    // 0  - 5.  : 0
     var score: Int {
         switch self {
         case .deep:
-            return 15
+            return 10
         case .adequate:
-            return 33
+            return 20
         case .shallow:
-            return 15
-        case .tooShallow:
-            return 5
+            return 10
         case .wrong:
             return 0
         }
@@ -125,25 +147,30 @@ enum PressDepthStatus: String {
             return "Good job! Very adequate!"
         case .shallow:
             return "Press little deeper"
-        case .tooShallow:
-            return "It's too shallow. Press deeply"
         case .wrong:
             return "Something went wrong. Try Again"
             
         }
     }
+    
+    var isSucceed: Bool {
+        switch self {
+        case .adequate:
+            return true
+        case .deep, .shallow, .wrong:
+            return false
+        }
+    }
 }
 
-struct CertificateStatus {
-    let status: AngelStatus
-    let leftDay: Int?
-}
-
+//func getArmAngleResult() -> (correct: Int, nonCorrect: Int) {
+//    return (correctAngle, incorrectAngle)
+//}
 enum AngelStatus: Int {
     case acquired
     case expired
     case unacquired
-
+    
     func certificationImageName(_ isBig: Bool = false) -> String {
         switch self {
         case .acquired:
@@ -153,31 +180,73 @@ enum AngelStatus: Int {
         }
     }
     
-    func certificationStatus() -> String {
+    func getStatus() -> String {
         switch self {
         case .acquired:
-            return "ACQUIRED"
+            return "acq_status".localized()
         case .expired:
-            return "EXPIRED"
+            return "exp_status".localized()
         case .unacquired:
-            return "UNACQUIRED"
+            return "unacq_status".localized()
         }
     }
 }
 
 enum TimerType: Int {
-    case lecture = 3001
-    case posture = 130
+    case lecture = 3000
+    case posture =  126
     case other = 0
 }
 
+enum EducationCourseInfo: String {
+    case lecture = "course_lec"
+    case quiz = "course_quiz"
+    case pose = "course_pose"
+    
+    var name: String {
+        return self.rawValue.localized()
+    }
+    
+    var description: String {
+        switch self {
+        case .lecture:
+            return "course_lec_des".localized()
+        case .quiz:
+            return "course_quiz_des".localized()
+        case .pose:
+            return "course_pose_des".localized()
+        }
+    }
+    
+    var timeValue: Int {
+        switch self {
+        case .lecture:
+            return 50
+        case .quiz:
+            return 5
+        case .pose:
+            return 3
+        }
+    }
+}
+struct EducationCourse {
+    var info: EducationCourseInfo
+    var courseStatus = CurrentValueSubject<CourseStatus,Never>(.locked)
+    
+    init(course: EducationCourseInfo) {
+        self.info = course
+    }
+}
+
 final class EducationViewModel: AsyncOutputOnlyViewModelType {
-    
     private let eduManager: EducationManager
+
+    @Published private(set) var educationCourse: [EducationCourse] = [
+        EducationCourse(course: .lecture),
+        EducationCourse(course: .quiz),
+        EducationCourse(course: .pose)
+    ]
     
-    private let eduName: [String] = ["Lecture" , "Quiz", "Pose Practice"]
-    private let eduDescription: [String] = ["Video lecture for CPR angel certificate", "Let’s check your CPR study", "Posture practice to get CPR angel certificate"]
-    private var eduStatusArr:[CurrentValueSubject<Bool,Never>] = [CurrentValueSubject(false), CurrentValueSubject(false), CurrentValueSubject(false)]
     private var input: Input?
     
     private var currentTimerType = TimerType.other
@@ -199,27 +268,12 @@ final class EducationViewModel: AsyncOutputOnlyViewModelType {
         let angelStatus: CurrentValueSubject<Int, Never>
         let progressPercent: CurrentValueSubject<Float, Never>
         let leftDay: CurrentValueSubject<Int?, Never>
-        let isLectureCompleted: CurrentValueSubject<Bool, Never>
-        let isQuizCompleted: CurrentValueSubject<Bool, Never>
-        let isPostureCompleted: CurrentValueSubject<Bool, Never>
     }
     
     struct Output {
         let nickname: CurrentValueSubject<String, Never>?
         let certificateStatus: CurrentValueSubject<CertificateStatus, Never>?
         let progressPercent: CurrentValueSubject<Float, Never>?
-    }
-    
-    func educationName() -> [String] {
-        return eduName
-    }
-    
-    func educationDescription() -> [String] {
-        return eduDescription
-    }
-    
-    func educationStatus() -> [CurrentValueSubject<Bool, Never>] {
-        return eduStatusArr
     }
     
     func timeLimit() -> Int {
@@ -240,7 +294,7 @@ final class EducationViewModel: AsyncOutputOnlyViewModelType {
                 guard let leftDayNum = input?.leftDay.value else {
                     return CurrentValueSubject(CertificateStatus(status: status, leftDay: nil))
                 }
-     
+                
                 return CurrentValueSubject(CertificateStatus(status: status, leftDay: leftDayNum))
                 
             }()
@@ -276,19 +330,34 @@ final class EducationViewModel: AsyncOutputOnlyViewModelType {
         let result = Task { () -> Input? in
             let eduResult = try await self.eduManager.getEducationProgress()
             guard let data = eduResult.data else { return nil }
-        
-            let progressPercent = Float(data.progress_percent)
-            let isLectureCompleted = data.is_lecture_completed == 2
-            let isQuizCompleted = data.is_quiz_completed == 2
-            let isPostureCompleted = data.is_posture_completed == 2
             
-            let isCompleted = [isLectureCompleted, isQuizCompleted, isPostureCompleted]
-            for i in 0..<eduStatusArr.count {
-                eduStatusArr[i].send(isCompleted[i])
+            let progressPercent = Float(data.progress_percent)
+            
+            let completedStatusArr = [
+                data.is_lecture_completed,
+                data.is_quiz_completed,
+                data.is_posture_completed
+            ]
+            
+            for idx in 0..<completedStatusArr.count {
+                if completedStatusArr[idx] == 2 {
+                    educationCourse[idx].courseStatus.send(.completed)
+                } else {
+                    educationCourse[idx].courseStatus.send(.now)
+                    if idx+1 <= completedStatusArr.count - 1 {
+                        for i in idx+1..<completedStatusArr.count {
+                            educationCourse[i].courseStatus.send(.locked)
+                        }
+                        break
+                    }
+                }
             }
-            return Input(nickname: CurrentValueSubject(data.nickname), angelStatus: CurrentValueSubject(data.angel_status), progressPercent: CurrentValueSubject(progressPercent), leftDay: CurrentValueSubject(data.days_left_until_expiration), isLectureCompleted: CurrentValueSubject(isLectureCompleted), isQuizCompleted: CurrentValueSubject(isQuizCompleted), isPostureCompleted: CurrentValueSubject(isPostureCompleted))
+            
+            for i in 0..<completedStatusArr.count {
+                print("idx: \(i) \(educationCourse[i].courseStatus.value)")
+            }
+            return Input(nickname: CurrentValueSubject(data.nickname), angelStatus: CurrentValueSubject(data.angel_status), progressPercent: CurrentValueSubject(progressPercent), leftDay: CurrentValueSubject(data.days_left_until_expiration))
         }
-        
         return try await result.value
     }
     
@@ -305,6 +374,16 @@ final class EducationViewModel: AsyncOutputOnlyViewModelType {
     func savePosturePracticeResult(score: Int) async throws -> Bool {
         let result = Task {
             let eduResult = try await eduManager.savePosturePracticeResult(score: score)
+            let userInfo = try await receiveEducationStatus()
+            updateInput(data: userInfo)
+            return eduResult.success
+        }
+        return try await result.value
+    }
+    
+    func saveQuizResult() async throws -> Bool {
+        let result = Task {
+            let eduResult = try await eduManager.saveQuizResult(score: 100)
             let userInfo = try await receiveEducationStatus()
             updateInput(data: userInfo)
             return eduResult.success
@@ -330,23 +409,31 @@ final class EducationViewModel: AsyncOutputOnlyViewModelType {
     
     func updateInput(data: UserInfo?) {
         let progressPercent = Float(data?.progress_percent ?? 0)
-        let isLectureCompleted = data?.is_lecture_completed == 2
-        let isQuizCompleted = data?.is_quiz_completed == 2
-        let isPostureCompleted = data?.is_posture_completed == 2
-    
+        
         DispatchQueue.main.async { [weak self] in
             self?.input?.nickname.send(data?.nickname ?? "")
             self?.input?.angelStatus.send(data?.angel_status ?? 0)
             self?.input?.progressPercent.send(progressPercent)
             self?.input?.leftDay.send(data?.days_left_until_expiration ?? nil)
-            self?.input?.isLectureCompleted.send(isLectureCompleted)
-            self?.input?.isQuizCompleted.send(isQuizCompleted)
-            self?.input?.isPostureCompleted.send(isPostureCompleted)
             
-            let isCompleted = [isLectureCompleted, isQuizCompleted, isPostureCompleted]
-            guard let count = self?.eduStatusArr.count else { return }
-            for i in 0..<count {
-                self?.eduStatusArr[i].send(isCompleted[i])
+            let completedStatusArr = [
+                data?.is_lecture_completed,
+                data?.is_quiz_completed,
+                data?.is_posture_completed
+            ]
+            
+            for idx in 0..<completedStatusArr.count {
+                if completedStatusArr[idx] == 2 {
+                    self?.educationCourse[idx].courseStatus.send(.completed)
+                } else {
+                    self?.educationCourse[idx].courseStatus.send(.now)
+                    if idx+1 <= completedStatusArr.count - 1 {
+                        for i in idx+1..<completedStatusArr.count {
+                            self?.educationCourse[i].courseStatus.send(.locked)
+                        }
+                        break
+                    }
+                }
             }
         }
     }
@@ -356,25 +443,22 @@ final class EducationViewModel: AsyncOutputOnlyViewModelType {
         
         var compResult: CompressionRateStatus = .adequate
         switch compRate {
-        case ...170:
+        case ...80:
             compResult = .tooSlow
-        case 170...190:
+        case 80...100:
             compResult = .slow
-        case 190...250:
+        case 100...130:
             compResult = .adequate
-        case 250...270:
+        case 130...150:
             compResult = .fast
-        case 270...:
+        case 150...:
             compResult = .tooFast
         default:
             compResult = .wrong
         }
-        
-        let angleRate = angleRate
-        
         var angleResult: AngleStatus = .adequate
         let totalAngleCount = Double(correct + nonCorrect)
-                
+        
         switch Double(correct) {
         case Double(totalAngleCount) * 0.7...totalAngleCount:
             angleResult = .adequate
@@ -393,17 +477,16 @@ final class EducationViewModel: AsyncOutputOnlyViewModelType {
         
         var pressDepthResult: PressDepthStatus = .wrong
         
-        switch pressRate {
-        case 30.0... :
-            pressDepthResult = .deep
-        case 18.0..<30.0:
-            pressDepthResult = .adequate
-        case 5.0..<18.0:
-            pressDepthResult = .shallow
-        case 0.0..<5.0:
-            pressDepthResult = .tooShallow
-        default:
+        let defaultValue = UIScreen.main.bounds.width * 3
+        
+        if defaultValue / 20 < pressRate {
             pressDepthResult = .wrong
+        } else if defaultValue / 30 < pressRate {
+            pressDepthResult = .deep
+        } else if defaultValue / 50 < pressRate {
+            pressDepthResult = .adequate
+        } else {
+            pressDepthResult = .shallow
         }
         
         return (compResult, angleResult, pressDepthResult)
@@ -414,6 +497,5 @@ final class EducationViewModel: AsyncOutputOnlyViewModelType {
         angleRate.correct = armAngleCount.correct
         angleRate.nonCorrect = armAngleCount.nonCorrect
         pressDepthRate = pressDepth
-        
     }
 }

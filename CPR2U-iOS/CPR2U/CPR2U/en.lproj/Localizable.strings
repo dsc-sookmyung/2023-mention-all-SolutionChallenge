@@ -1,0 +1,148 @@
+/* 
+  Localizable.strings
+  CPR2U
+
+  Created by 황정현 on 2023/05/11.
+  
+*/
+
+/*
+key의 길이가 길어지는 것을 방지하기 위해 아래의 규칙에 의거하여 key 이름을 지정합니다.
+education: edu
+call: call
+mypage: mpg
+tab: tab
+t: title
+txt: text
+ins: instruction
+des: description
+ann: annotation
+warn: warning
+pn: phone number
+phdr: placeholder
+
+*/
+
+// Common
+"send" = "SEND";
+"confirm" = "CONFIRM";
+"continue" = "CONTINUE";
+"cancel" = "CANCEL";
+"submit" = "SUBMIT";
+"quit" = "QUIT";
+"logout" = "LOGOUT";
+"yes" = "YES";
+"no" = "NO";
+"got_it" = "GOT IT";
+"completed" = "COMPLETED!";
+"completed_not" = "Not Completed";
+"open_not" = "Not Opened";
+"%@_greeting_txt" = "Hi %@";
+"%@_greet_des_txt" = "Hi %@ nYour Certification Status is";
+
+// TabBarView
+"edu_tab_t" = "Education";
+"call_tab_t" = "Call";
+"mypage_tab_t" = "Profile";
+
+// Angel Status
+"cert_status_ann_txt" = "Certificate Status: ";
+"angel_progress_ann_txt" = "CPR Angel Certification Progress";
+"acq_status" = "ACQUIRED";
+"exp_status" = "EXPIRED";
+"unacq_status" = "UNACQUIRED";
+
+// PhoneNumberVC
+"nation_code" = "+ 82";
+"pn_ins_txt" = "Enter your number";
+"pn_des_txt" = "We will send a code to verify your mobile number";
+"pn_phdr" = "PhoneNumber*";
+
+// SMSCodeVerificationVC
+"code_ins_txt"= "Enter Code";
+"code_des_txt"= "An SMS code was sent to";
+"code_resend_ins_txt" = "Not receiveing the code?";
+
+// NicknameVerificationVC
+"nickname_special_character" = "Nickname cannot contain special characters";
+"%@_nickname_unavailable" = "%@ is Unavailable";
+"nickname_ins_txt" = "Enter your Nickname";
+"nickname_des_txt" = "People can recognize you by your nickname";
+"nickname_phdr" = "Nickname*";
+
+// AddressVerificationVC
+//"address_des_txt"= "Select your address for\nCPR Angel activities";
+"address_ins_txt" = "Select your Address";
+"address_des_txt" = "Select your address for CPR Angel activities";
+
+// NoticeV
+// - titleLabels
+//case quizFail
+//case quizPass
+//case certificate
+//case dispatchComplete
+"lecture_pass_title_txt" = "Lecture Complete!";
+"quiz_fail_title_txt_%@" = "Quiz Failed: %@";
+"quiz_pass_title_txt" = "Quiz Passed!";
+"certificate_title_txt" = "Congratulations!";
+"dispatchComplete_title_txt" = "Completed!";
+"lecture_pass_des_txt" = "You have completed the Lecture!\nYou are one step closer to becoming\na CPR Angel!";
+"quiz_fail_des_txt" = "You did not complete the Quiz.\nPlease try again.";
+"quiz_pass_des_txt" = "You have completed the Quiz!\nYou are one step closer to becoming\na CPR Angel!";
+"certificate_des_txt" = "You have got CPR Angel Certificate!\nNow you're a CPR Angel and can help\nsomeone in cardiac arrest.";
+"dispatchComplete_des_txt" = "You have arrived in the emergency.\nPlease help the caller!";
+
+// Education
+"course_lec" = "Lecture";
+"course_quiz" = "Quiz";
+"course_pose" = "Pose Practice";
+"course_lec_des" = "Video lecture for CPR angel certificate";
+"course_quiz_des" = "Let’s check your CPR study";
+"course_pose_des" = "Posture practice to get CPR angel certificate";
+"taken_%dtime_des_txt" = "Takes about %d minutes";
+
+// Education - Quiz
+"quiz_exit" = "Quiz Exit";
+"quiz_exit_warn_txt" = "All progress will be lost";
+
+// Education - Pose
+"your_result_txt" = "YOUR RESULT";
+"pass" = "PASSED!";
+"fail" = "FAILED...";
+"pe_title_txt_1" = "Prepare tools";
+"pe_title_txt_2" = "Prepare tools";
+"pe_title_txt_3" = "Draw an angry man";
+"pe_title_txt_4" = "Ready";
+"pe_des_txt_1" = "If you do not have a CPR mannequin,\nplease prepare a plastic bottle, pillow, etc.";
+"pe_des_txt_2" = "Put the plastic bottle inside the clothes\nyou don't wear and wrap it up.";
+"pe_des_txt_3" = "Draw an angry man on your clothes or pillow\nusing tape or pen.";
+"pe_des_txt_4" = "Please press the location marked in red!";
+"pe_ins_txt" = "Please assume the position";
+"pe_count_des_txt" = "Time Until Posture Measurement Begins";
+
+// Call
+"approch_des_txt" = "Your call has been\nsent to the CPR Angels\nnear you.";
+"angel_approach_notice_default_txt" = "Calling CPR Angels...";
+"angel_approach_notice_%dmatched_txt" = "%d CPR Angels Matched!\nIt’s coming this way.";
+"siuation_end_des_txt" = "SITUATION ENDED";
+"call_ins_txt" = "Call 911";
+"call_des_txt" = "Calling 911 is the first priority. Ask the people around you to report or perform CPR after reporting. If the report is false, you will be restricted from using the app.";
+"pe_pass_txt" = "Congratulations!\nYou passed the CPR posture test.";
+"pe_fail_txt" = "Failed.\nYou need to practice CPR posture more.";
+
+
+// Dispatch
+"elapsed_time_txt" = "Elapsed Time";
+"patient_loc_txt" = "Patient Location";
+"dispatch_ins_txt" = "Shall we start out?";
+"dispatch_alert_txt" = "If you arrive within 5 minutes,\nthe patient's survival rate increases.";
+"dispatch_des_txt" = "When you arrive at your destination,\ndispatch ends automatically.";
+"dispatch_tab_t" = "DISPATCH";
+"arrive_des_txt" = "ARRIVED";
+"report_title_txt" = "Is there any problem? Report us";
+"report_ins_txt" = "What are you trying to report?";
+"report_des_txt" = "Your report will be treated anonymously.";
+"report_phdr" = "Content*";
+
+// Auth
+"logout_des_txt" = "Are you sure you want to Logout?";

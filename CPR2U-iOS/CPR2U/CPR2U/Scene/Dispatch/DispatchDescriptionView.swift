@@ -8,7 +8,7 @@
 import UIKit
 
 enum DispatchDescriptionType: String {
-    case duration = "Duration"
+    case startTime = "Start Time"
     case distance = "Distance"
 }
 
@@ -22,16 +22,16 @@ class DispatchDescriptionView: UIView {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(weight: .regular, size: 14)
-        label.textAlignment = .center
+        label.textAlignment = .left
         label.textColor = .black
         return label
     }()
     
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(weight: .regular, size: 18)
+        label.font = UIFont(weight: .bold, size: 24)
         label.textAlignment = .center
-        label.textColor = .black
+        label.textColor = .mainRed
         label.text = "---"
         return label
     }()
@@ -46,9 +46,29 @@ class DispatchDescriptionView: UIView {
     }
     
     func setUpConstraints() {
-        [
+        let make = Constraints.shared
+        
+        let stackView = UIStackView(arrangedSubviews: [
             imageView,
             titleLabel,
+        ])
+        
+        stackView.axis  = NSLayoutConstraint.Axis.horizontal
+        stackView.alignment = UIStackView.Alignment.center
+        stackView.spacing   = make.space4
+        
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 16),
+            imageView.heightAnchor.constraint(equalToConstant: 16)
+        ])
+        
+        NSLayoutConstraint.activate([
+            titleLabel.heightAnchor.constraint(equalToConstant: 20)
+        ])
+        titleLabel.sizeToFit()
+        
+        [
+            stackView,
             descriptionLabel
         ].forEach({
             self.addSubview($0)
@@ -57,20 +77,17 @@ class DispatchDescriptionView: UIView {
         })
         
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: self.topAnchor),
-            imageView.widthAnchor.constraint(equalToConstant: 24),
-            imageView.heightAnchor.constraint(equalToConstant: 24)
+            stackView.topAnchor.constraint(equalTo: self.topAnchor),
+            stackView.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+            stackView.heightAnchor.constraint(equalToConstant: 25)
         ])
+        stackView.sizeToFit()
+        titleLabel.sizeToFit()
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor),
-            titleLabel.widthAnchor.constraint(equalToConstant: 75),
-            titleLabel.heightAnchor.constraint(equalToConstant: 20)
-        ])
-        
-        NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2),
-            descriptionLabel.widthAnchor.constraint(equalToConstant: 75),
+            descriptionLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: make.space4),
+            descriptionLabel.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+            descriptionLabel.widthAnchor.constraint(equalToConstant: 140),
             descriptionLabel.heightAnchor.constraint(equalToConstant: 25)
         ])
     }

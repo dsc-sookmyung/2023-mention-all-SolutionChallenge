@@ -20,7 +20,7 @@ final class TabBarViewController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        NotificationCenter.default.addObserver(self, selector: #selector(showCallerPage), name: NSNotification.Name("ShowCallerPage"), object: nil)
         setUpTabBar()
     }
 
@@ -29,11 +29,11 @@ final class TabBarViewController: UITabBarController {
         
         let educationVC = EducationMainViewController(viewModel: EducationViewModel())
         let callVC = CallMainViewController(viewModel: CallViewModel())
-        let mypageVC = MypageViewController(viewModel: EducationViewModel())
+        let mypageVC = MypageViewController(authViewModel: AuthViewModel(), eduViewModel: EducationViewModel())
         
-        educationVC.title = "Education"
-        callVC.title = "Call"
-        mypageVC.title = "Profile"
+        educationVC.title = "edu_tab_t".localized()
+        callVC.title = "call_tab_t".localized()
+        mypageVC.title = "mypage_tab_t".localized()
         
         educationVC.tabBarItem.image = UIImage.init(systemName: "book")
         callVC.tabBarItem.image = UIImage.init(systemName: "bell")
@@ -53,4 +53,16 @@ final class TabBarViewController: UITabBarController {
         
         setViewControllers([navigationEdu, navigationCall, navigationMypage], animated: false)
     }
+    
+    @objc func showCallerPage(_ notification:Notification) {
+        if let userInfo = notification.userInfo {
+            guard let type = userInfo["type"] as? String else { return }
+            if type == "1" {
+                if self.selectedIndex != 1 {
+                    self.selectedIndex = 1
+                }
+            }
+        }
+    }
+
 }

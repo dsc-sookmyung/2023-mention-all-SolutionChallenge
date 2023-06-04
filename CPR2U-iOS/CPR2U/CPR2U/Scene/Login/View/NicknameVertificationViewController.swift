@@ -21,9 +21,10 @@ enum NicknameStatus {
         var str: String
         switch self {
         case .specialCharacters:
-            str = "Nickname cannot contain special characters"
+            str = "nickname_special_character".localized()
         case .unavailable:
-            str = "\'\(name)' is Unavailable"
+            let localizedStr = String(format: "%@_nickname_unavailable".localized(), name)
+            str = localizedStr
         case .available:
             str = ""
         case .none:
@@ -47,17 +48,58 @@ final class NicknameVerificationViewController: UIViewController {
 
     private let signManager = AuthManager(service: APIManager())
     
-    var phoneNumberString: String?
+    // MARK: 기존 회원인 경우와 기존 회원이 아닌 경우를 나누어서 처리가 이루어져야함
+    private let instructionLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(weight: .bold, size: 24)
+        label.textColor = .mainBlack
+        label.text = "nickname_ins_txt".localized()
+        return label
+    }()
     
-    private let instructionLabel = UILabel()
-    private let descriptionLabel = UILabel()
+    // MARK: 기존 회원인 경우와 기존 회원이 아닌 경우를 나누어서 처리가 이루어져야함
+    private let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(weight: .regular, size: 14)
+        label.textColor = .mainBlack
+        label.text = "nickname_des_txt".localized()
+        return label
+    }()
     
-    private let nicknameView = UIView()
-    private let nicknameTextField = UITextField()
+    private let nicknameView: UIView = {
+        let view = UIView()
+        view.layer.borderColor = UIColor(rgb:0xF2F2F2).cgColor
+        view.layer.borderWidth = 1
+        view.layer.cornerRadius = 6
+        return view
+    }()
     
-    private let irregularNoticeLabel = UILabel()
+    private let nicknameTextField: UITextField = {
+        let textField = UITextField()
+        textField.backgroundColor = .clear
+        textField.textColor = .mainBlack
+        textField.font = UIFont(weight: .regular, size: 16)
+        textField.placeholder = "nickname_phdr".localized()
+        return textField
+    }()
     
-    private let continueButton = UIButton()
+    private let irregularNoticeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(weight: .regular, size: 14)
+        label.textAlignment = .left
+        label.textColor = .mainRed
+        return label
+    }()
+    
+    private let continueButton: UIButton = {
+        let button = UIButton()
+        button.titleLabel?.font = UIFont(weight: .bold, size: 16)
+        button.setTitle("continue".localized(), for: .normal)
+        button.setTitleColor(.mainWhite, for: .normal)
+        button.backgroundColor = .mainRed
+        button.layer.cornerRadius = 27.5
+        return button
+    }()
     
     private var continueButtonBottomConstraints = NSLayoutConstraint()
     
@@ -73,7 +115,6 @@ final class NicknameVerificationViewController: UIViewController {
     
     init(viewModel: AuthViewModel) {
         self.viewModel = viewModel
-        self.phoneNumberString = viewModel.getPhoneNumber()
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -87,18 +128,13 @@ final class NicknameVerificationViewController: UIViewController {
 
         setUpConstraints()
         setUpStyle()
-        setUpText()
         setUpAction()
         setUpKeyboard()
         bind(viewModel: viewModel)
     }
     
     private func setUpConstraints() {
-        
-        let space4: CGFloat = 4
-        let space8: CGFloat = 8
-        let space16: CGFloat = 16
-        
+        let make = Constraints.shared
         let safeArea = view.safeAreaLayoutGuide
         
         [
@@ -116,86 +152,79 @@ final class NicknameVerificationViewController: UIViewController {
         nicknameTextField.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            instructionLabel.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: space16),
-            instructionLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
-            instructionLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -space16),
+            instructionLabel.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: make.space16),
+            instructionLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
+            instructionLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space16),
             instructionLabel.heightAnchor.constraint(equalToConstant: 32)
         ])
         
         NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: instructionLabel.bottomAnchor, constant: space4),
-            descriptionLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
-            descriptionLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: space16),
+            descriptionLabel.topAnchor.constraint(equalTo: instructionLabel.bottomAnchor, constant: make.space4),
+            descriptionLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
+            descriptionLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: make.space16),
             descriptionLabel.heightAnchor.constraint(equalToConstant: 28)
         ])
 
         NSLayoutConstraint.activate([
-            nicknameView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: space8),
-            nicknameView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
-            nicknameView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -space16),
+            nicknameView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: make.space8),
+            nicknameView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
+            nicknameView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space16),
             nicknameView.heightAnchor.constraint(equalToConstant: 48)
         ])
         
         NSLayoutConstraint.activate([
             nicknameTextField.topAnchor.constraint(equalTo: nicknameView.topAnchor),
-            nicknameTextField.leadingAnchor.constraint(equalTo: nicknameView.leadingAnchor, constant: space16),
+            nicknameTextField.leadingAnchor.constraint(equalTo: nicknameView.leadingAnchor, constant: make.space16),
             nicknameTextField.trailingAnchor.constraint(equalTo: nicknameView.trailingAnchor),
             nicknameTextField.heightAnchor.constraint(equalTo: nicknameView.heightAnchor)
         ])
 
         NSLayoutConstraint.activate([
-            irregularNoticeLabel.topAnchor.constraint(equalTo: nicknameTextField.bottomAnchor, constant: space8),
-            irregularNoticeLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
+            irregularNoticeLabel.topAnchor.constraint(equalTo: nicknameTextField.bottomAnchor, constant: make.space8),
+            irregularNoticeLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
             irregularNoticeLabel.widthAnchor.constraint(equalToConstant: 300),
             irregularNoticeLabel.heightAnchor.constraint(equalToConstant: 16),
         ])
         
-        continueButtonBottomConstraints = continueButton.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -space16)
+        continueButtonBottomConstraints = continueButton.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -make.space16)
         NSLayoutConstraint.activate([
-            continueButton.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: space16),
-            continueButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -space16),
+            continueButton.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: make.space16),
+            continueButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -make.space16),
             continueButtonBottomConstraints,
             continueButton.heightAnchor.constraint(equalToConstant: 55)
         ])
     }
     
     private func setUpStyle() {
-        
         view.backgroundColor = .white
-        
-        instructionLabel.font = UIFont(weight: .bold, size: 24)
-        instructionLabel.textColor = .mainBlack
-        descriptionLabel.font = UIFont(weight: .regular, size: 14)
-        descriptionLabel.textColor = .mainBlack
-        
-        nicknameView.layer.borderColor = UIColor(rgb:0xF2F2F2).cgColor
-        nicknameView.layer.borderWidth = 1
-        nicknameView.layer.cornerRadius = 6
-        
-        nicknameTextField.backgroundColor = .clear
-        nicknameTextField.textColor = .mainBlack
-        nicknameTextField.font = UIFont(weight: .regular, size: 16)
-        
-        irregularNoticeLabel.font = UIFont(weight: .regular, size: 14)
-        irregularNoticeLabel.textAlignment = .left
-        irregularNoticeLabel.textColor = .mainRed
-        
-        continueButton.titleLabel?.font = UIFont(weight: .bold, size: 16)
-        continueButton.setTitleColor(.mainWhite, for: .normal)
-        continueButton.backgroundColor = .mainRed
-        continueButton.layer.cornerRadius = 27.5
-    }
-    
-    private func setUpText() {
-        instructionLabel.text = "Enter your Nickname"
-        descriptionLabel.text = "People can recognize you by your nickname"
-        continueButton.setTitle("CONTINUE", for: .normal)
-        
-        nicknameTextField.placeholder = "Nickname*"
     }
     
     private func setUpAction() {
-        nicknameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        nicknameTextField.textPublisher.sink { [weak self] text in
+            guard let text else { return }
+            
+            if text.count > 20 {
+                self?.nicknameTextField.text?.removeLast()
+            }
+            
+            let strArr = Array(text)
+            let pattern = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]$"
+            
+            if strArr.count > 0 {
+                if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+                    for index in 0..<strArr.count {
+                        let checkString = regex.matches(in: String(strArr[index]), options: [], range: NSRange(location: 0, length: 1))
+                        if checkString.count == 0 {
+                            self?.nicknameStatus = .specialCharacters
+                            return
+                        }
+                    }
+                }
+                self?.nicknameStatus = .none
+            } else {
+                self?.nicknameStatus = .none
+            }
+        }.store(in: &cancellables)
     }
     
     private func setUpKeyboard() {
@@ -205,54 +234,19 @@ final class NicknameVerificationViewController: UIViewController {
         hideKeyboardWhenTappedAround()
     }
     
-    @objc func textFieldDidChange(_ textField: UITextField) {
-        guard let str = textField.text else { return }
-        
-        if str.count > 20 {
-            textField.text?.removeLast()
-        }
-        
-        let strArr = Array(str)
-        let pattern = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]$"
-        
-        if strArr.count > 0 {
-            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
-                for index in 0..<strArr.count {
-                    let checkString = regex.matches(in: String(strArr[index]), options: [], range: NSRange(location: 0, length: 1))
-                    if checkString.count == 0 {
-                        nicknameStatus = .specialCharacters
-                        return
-                    }
-                }
-            }
-            nicknameStatus = .none
-        } else {
-            nicknameStatus = .none
-        }
-       
-    }
-    
     private func bind(viewModel: AuthViewModel) {
+        // MARK: 기존 회원인 경우와 기존 회원이 아닌 경우를 나누어서 처리할 예정
         continueButton.tapPublisher.sink { [weak self] in
             guard let userInput = self?.nicknameTextField.text else { return }
             Task {
-                guard userInput.count > 0 else { return }
-                if (self?.nicknameStatus != .specialCharacters) {
-                    let nicknameStatus = try await self?.viewModel.nicknameVerify(userInput: userInput)
+                guard let self = self, userInput.count > 0 else { return }
+                if (self.nicknameStatus != .specialCharacters) {
+                    let nicknameStatus = try await self.viewModel.nicknameVerify(userInput: userInput)
                     if nicknameStatus == .available {
-                        self?.viewModel.setNickname(name: userInput)
-                        let signUpResult = try await self?.viewModel.signUp()
-                        if signUpResult == true {
-                            self?.dismiss(animated: true)
-                            let vc = TabBarViewController()
-                            guard let window = self?.view.window else { return }
-                            await window.setRootViewController(vc, animated: true)
-                        } else {
-                            print("에러")
-                        }
+                        viewModel.nickname = userInput
+                        self.navigationController?.pushViewController(AddressVerificationViewController(viewModel: viewModel), animated: true)
                     } else {
-                        guard let label = self?.irregularNoticeLabel else { return }
-                        nicknameStatus?.changeNoticeLabel(noticeLabel: label, nickname: userInput)
+                        nicknameStatus.changeNoticeLabel(noticeLabel: self.irregularNoticeLabel, nickname: userInput)
                     }
                 }
             }
@@ -269,7 +263,7 @@ final class NicknameVerificationViewController: UIViewController {
     }
     
     @objc private func keyboardWillHide(_ notification: Notification) {
-        continueButtonBottomConstraints.constant = -16
+        continueButtonBottomConstraints.constant = -Constraints.shared.space16
         view.layoutIfNeeded()
     }
 }

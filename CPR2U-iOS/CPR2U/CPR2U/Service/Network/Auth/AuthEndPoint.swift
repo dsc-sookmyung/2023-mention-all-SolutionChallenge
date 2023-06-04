@@ -7,38 +7,57 @@
 
 import Foundation
 
+struct AnyEncodable: Encodable {
+    private let encodable: Encodable
+
+    init(_ encodable: Encodable) {
+        self.encodable = encodable
+    }
+
+    func encode(to encoder: Encoder) throws {
+        try encodable.encode(to: encoder)
+    }
+}
+
 enum AuthEndPoint {
     case phoneNumberVerify (phoneNumber: String)
     case nicknameVerify (nickname: String)
     case signIn (phoneNumber: String, deviceToken: String)
-    case signUp (nickname: String, phoneNumber: String, deviceToken: String)
+    case signUp (nickname: String, phoneNumber: String, addressId: Int, deviceToken: String)
     case autoLogin (refreshToken: String)
+    case logOut
+    case getAddressList
 }
 
 extension AuthEndPoint: EndPoint {
     
     var method: HttpMethod {
         switch self {
-        case .phoneNumberVerify, .signIn, .signUp, .autoLogin:
+        case .phoneNumberVerify, .signIn, .signUp, .autoLogin, .logOut:
             return .POST
-        case .nicknameVerify:
+        case .nicknameVerify, .getAddressList:
             return .GET
         }
     }
     
     var body: Data? {
-        var params: [String : String]
+        var params: [String : AnyEncodable]
         switch self {
         case .phoneNumberVerify(let phoneNumber):
-            params = ["phone_number" : phoneNumber]
+            params = ["phone_number" : AnyEncodable(phoneNumber)]
         case .nicknameVerify(let nickname):
-            params = ["nickname" : nickname ]
+            params = ["nickname" : AnyEncodable(nickname)]
         case .signIn(let phoneNumber, let deviceToken):
-            params = [ "phone_number" : phoneNumber, "device_token" : deviceToken ]
-        case .signUp(let nickname, let phoneNumber, let deviceToken):
-            params = ["nickname" : nickname, "phone_number" : phoneNumber, "device_token" : deviceToken ]
+            params = [ "phone_number" : AnyEncodable(phoneNumber), "device_token" : AnyEncodable(deviceToken)]
+        case .signUp(let nickname, let phoneNumber, let addressId, let deviceToken):
+            params = ["nickname" : AnyEncodable(nickname), "phone_number" : AnyEncodable(phoneNumber), "address_id" :
+                        AnyEncodable(addressId), "device_token" : AnyEncodable(deviceToken)]
         case .autoLogin(let refreshToken) :
-            params = ["refresh_token" : refreshToken]
+            params = ["refresh_token" : AnyEncodable(refreshToken)]
+        case .getAddressList:
+            return nil
+        case .logOut :
+            return nil
         }
         
         return params.encode()
@@ -57,6 +76,10 @@ extension AuthEndPoint: EndPoint {
             return "\(baseURL)/auth/signup"
         case .autoLogin:
             return "\(baseURL)/auth/auto-login"
+        case .getAddressList:
+            return "\(baseURL)/auth/address"
+        case .logOut:
+            return "\(baseURL)/auth/logout"
         }
     }
     
@@ -97,6 +120,13 @@ extension AuthEndPoint: EndPoint {
                                   httpMethod: method,
                                   headers: headers,
                                   requestBody: body)
+        case .logOut:
+            var headers: [String: String] = [:]
+            headers["Authorization"] = UserDefaultsManager.accessToken
+            return NetworkRequest(url: getURL(path: baseURL), httpMethod: method, headers: headers)
+        case .getAddressList:
+            return NetworkRequest(url: getURL(path: baseURL),
+                                  httpMethod: method)
         }
     }
 }

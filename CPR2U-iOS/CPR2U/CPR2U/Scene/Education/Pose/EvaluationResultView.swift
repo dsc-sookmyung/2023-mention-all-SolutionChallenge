@@ -8,17 +8,36 @@
 import UIKit
 
 final class EvaluationResultView: UIView {
-
     private let evaluationTargetImageView = UIImageView()
-    private let titleLabel = UILabel()
-    private let resultLabel = UILabel()
-    private let descriptionLabel = UILabel()
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(weight: .bold, size: 16)
+        label.textColor = .mainWhite
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private let descriptionImageView = UIImageView()
+    private let resultLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(weight: .bold, size: 14)
+        label.textColor = .mainWhite
+        label.textAlignment = .center
+        return label
+    }()
+    private let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(weight: .regular, size: 14)
+        label.textColor = .mainWhite
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        return label
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         setUpConstraints()
-        setUpStyle()
     }
     
     required init?(coder: NSCoder) {
@@ -28,77 +47,88 @@ final class EvaluationResultView: UIView {
     private func setUpConstraints() {
         let make = Constraints.shared
         
-        [
+        let titleStackView = UIStackView(arrangedSubviews: [
             evaluationTargetImageView,
-            titleLabel,
+            titleLabel
+        ])
+        titleStackView.axis = NSLayoutConstraint.Axis.horizontal
+        titleStackView.distribution = .equalSpacing
+        titleStackView.alignment = .center
+        titleStackView.spacing   = make.space8
+        
+        let stackView = UIStackView(arrangedSubviews: [
+            titleStackView,
+            descriptionImageView,
+            resultLabel,
+            descriptionLabel
+        ])
+        stackView.axis = NSLayoutConstraint.Axis.vertical
+        stackView.distribution = .equalSpacing
+        stackView.alignment = UIStackView.Alignment.center
+        stackView.spacing   = make.space8
+        
+        self.addSubview(stackView)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
+        
+        [
+            titleStackView,
+            descriptionImageView,
             resultLabel,
             descriptionLabel
         ].forEach({
-            self.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
         })
         
         NSLayoutConstraint.activate([
-            evaluationTargetImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: make.space12),
-            evaluationTargetImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: make.space16),
+            titleStackView.heightAnchor.constraint(equalToConstant: 28)
+        ])
+        
+        [
+            evaluationTargetImageView,
+            titleLabel
+        ].forEach({
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        })
+        
+        
+        NSLayoutConstraint.activate([
             evaluationTargetImageView.widthAnchor.constraint(equalToConstant: 28),
             evaluationTargetImageView.heightAnchor.constraint(equalToConstant: 28)
         ])
         
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: evaluationTargetImageView.trailingAnchor, constant: make.space4),
-            titleLabel.centerYAnchor.constraint(equalTo: evaluationTargetImageView.centerYAnchor),
-            titleLabel.widthAnchor.constraint(equalToConstant: 180),
-            titleLabel.heightAnchor.constraint(equalToConstant: 35)
+            descriptionImageView.widthAnchor.constraint(equalToConstant: 48),
+            descriptionImageView.heightAnchor.constraint(equalToConstant: 48)
         ])
         
         NSLayoutConstraint.activate([
-            resultLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: make.space24),
-            resultLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            resultLabel.widthAnchor.constraint(equalToConstant: 145),
-            resultLabel.heightAnchor.constraint(equalToConstant: 24)
+            resultLabel.widthAnchor.constraint(equalToConstant: 200),
+            resultLabel.heightAnchor.constraint(equalToConstant: 21)
         ])
         
         NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: resultLabel.bottomAnchor),
-            descriptionLabel.leadingAnchor.constraint(equalTo: resultLabel.leadingAnchor),
             descriptionLabel.widthAnchor.constraint(equalToConstant: 180),
-            descriptionLabel.heightAnchor.constraint(equalToConstant: 24)
+            descriptionLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
-    }
-    
-    private func setUpStyle() {
-        self.layer.cornerRadius = 16
-        self.layer.borderColor = UIColor.mainRed.cgColor
-        self.layer.borderWidth = 1
-        self.backgroundColor = .mainLightRed.withAlphaComponent(0.05)
-        
-        [
-            titleLabel, resultLabel, descriptionLabel
-        ].forEach({
-            $0.textColor = .mainBlack
-            $0.textAlignment = .left
-        })
-        titleLabel.font = UIFont(weight: .bold, size: 20)
-        resultLabel.font = UIFont(weight: .bold, size: 14)
-        descriptionLabel.font = UIFont(weight: .regular, size: 14)
-        
-        titleLabel.adjustsFontSizeToFitWidth = true
-        titleLabel.minimumScaleFactor = 0.5
-        
-        descriptionLabel.adjustsFontSizeToFitWidth = true
-        descriptionLabel.minimumScaleFactor = 0.5
-        descriptionLabel.numberOfLines = 3
     }
     
     func setImage(imgName systemName: String) {
         let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular, scale: .medium)
-        evaluationTargetImageView.image = UIImage(systemName: systemName, withConfiguration: config)
-        
+        evaluationTargetImageView.image = UIImage(systemName: systemName, withConfiguration: config)?.withTintColor(.mainWhite, renderingMode: .alwaysOriginal)
     }
     
     func setTitle(title: String) {
         titleLabel.text = title
+    }
+    
+    func setResultImageView(isSuccess: Bool) {
+        let image = isSuccess ? UIImage(named: "check_badge.png") : UIImage(named: "x_mark.png")
+        descriptionImageView.image = image
     }
     
     func setResultLabelText(as text: String) {

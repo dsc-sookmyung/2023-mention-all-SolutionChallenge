@@ -9,33 +9,28 @@ import UIKit
 
 final class EducationProgressView: UIView {
 
-    private let annotationLabel: UILabel = {
-        let label = UILabel()
-        let color = UIColor(rgb: 0x767676)
-        label.font = UIFont(weight: .regular, size: 11)
-        label.textColor = color
-        label.text = "CPR Angel Certification Progress"
-        return label
+    private lazy var lectureStatusView: StatusCircleView = {
+        let view = StatusCircleView()
+        return view
     }()
     
-    private let infoButton: UIButton = {
-        let button = UIButton()
-        let color = UIColor(rgb: 0x767676)
-        let config = UIImage.SymbolConfiguration(pointSize: 10, weight: .light, scale: .medium)
-        guard let img = UIImage(systemName: "info.circle", withConfiguration: config)?.withTintColor(color).withRenderingMode(.alwaysOriginal) else { return UIButton() }
-        button.setImage(img, for: .normal)
-        return button
+    private lazy var quizStatusView: StatusCircleView = {
+        let view = StatusCircleView()
+        return view
     }()
     
-    private lazy var progressView: UIProgressView = {
-        let view = UIProgressView()
-        view.trackTintColor = .mainLightRed.withAlphaComponent(0.05)
-        view.progressTintColor = .mainRed
-        view.layer.borderColor = UIColor.mainRed.cgColor
-        view.layer.borderWidth = 1
-        view.layer.cornerRadius = 8
-        view.layer.sublayers![1].cornerRadius = 8
-        view.clipsToBounds = true
+    private lazy var posePracticeStatusView: StatusCircleView = {
+        let view = StatusCircleView()
+        return view
+    }()
+    
+    private lazy var lecToQuizLine: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
+    private lazy var quizToPoseLine: UIView = {
+        let view = UIView()
         return view
     }()
     
@@ -50,40 +45,69 @@ final class EducationProgressView: UIView {
     }
     
     private func setUpConstraints() {
-        let make = Constraints.shared
         
         [
-            annotationLabel,
-            infoButton,
-            progressView
+            lectureStatusView,
+            lecToQuizLine,
+            quizStatusView,
+            posePracticeStatusView,
+            quizToPoseLine
         ].forEach({
             self.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
+            $0.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         })
         
+        [
+            lectureStatusView,
+            quizStatusView,
+            posePracticeStatusView
+        ].forEach({
+            $0.widthAnchor.constraint(equalToConstant: 40).isActive = true
+            $0.heightAnchor.constraint(equalToConstant: 40).isActive = true
+            $0.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        })
+        
+        
         NSLayoutConstraint.activate([
-            annotationLabel.topAnchor.constraint(equalTo: self.topAnchor),
-            annotationLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: make.space6),
-            annotationLabel.widthAnchor.constraint(equalToConstant: 168),
-            annotationLabel.heightAnchor.constraint(equalToConstant: 14)
+            lectureStatusView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
         ])
         
         NSLayoutConstraint.activate([
-            infoButton.leadingAnchor.constraint(equalTo: annotationLabel.trailingAnchor, constant: make.space4),
-            infoButton.centerYAnchor.constraint(equalTo: annotationLabel.centerYAnchor),
-            infoButton.widthAnchor.constraint(equalToConstant: 10),
-            infoButton.heightAnchor.constraint(equalToConstant: 10)
+            quizStatusView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
         ])
         
         NSLayoutConstraint.activate([
-            progressView.topAnchor.constraint(equalTo: annotationLabel.bottomAnchor, constant: make.space2),
-            progressView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: make.space6),
-            progressView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            progressView.heightAnchor.constraint(equalToConstant: 16)
+            posePracticeStatusView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+        ])
+        
+        NSLayoutConstraint.activate([
+            lecToQuizLine.heightAnchor.constraint(equalToConstant: 2),
+            lecToQuizLine.leadingAnchor.constraint(equalTo: lectureStatusView.trailingAnchor),
+            lecToQuizLine.trailingAnchor.constraint(equalTo: quizStatusView.leadingAnchor)
+        ])
+        
+        NSLayoutConstraint.activate([
+            quizToPoseLine.heightAnchor.constraint(equalToConstant: 2),
+            quizToPoseLine.leadingAnchor.constraint(equalTo: quizStatusView.trailingAnchor),
+            quizToPoseLine.trailingAnchor.constraint(equalTo: posePracticeStatusView.leadingAnchor)
         ])
     }
     
-    func setUpProgress(as value: Float) {
-        progressView.progress = value
+    func setUpComponent(status: [CourseStatus]) {
+        let statusViewArr = [
+            lectureStatusView,
+            quizStatusView,
+            posePracticeStatusView
+        ]
+        
+        for i in 0..<statusViewArr.count {
+            statusViewArr[i].setUpComponent(courseNumber: i+1, status: status[i])
+        }
+        
+        lecToQuizLine.backgroundColor = status[1].courseViewColor
+        quizToPoseLine.backgroundColor = status[2].courseViewColor
+        
+        self.layoutIfNeeded()
     }
 }

@@ -28,8 +28,6 @@ final class APIManager: Requestable {
         
         let decodedData = try JSONDecoder().decode(NetworkResponse<T>.self, from: data)
         
-        // MARK: TEST CODE
-        print("MSG: ", decodedData.message)
         if decodedData.status == 200 {
             return (true, decodedData.data)
         } else {

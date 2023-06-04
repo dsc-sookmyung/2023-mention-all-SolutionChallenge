@@ -27,3 +27,5 @@ struct SMSCodeResult: Codable {
 }
 
 struct NicknameVerifyResult: Codable {}
+
+struct LogOutResult: Codable {}

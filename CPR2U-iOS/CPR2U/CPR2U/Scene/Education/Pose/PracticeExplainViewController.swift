@@ -9,16 +9,30 @@ import Combine
 import CombineCocoa
 import UIKit
 
+struct PracticeInfo {
+    let imageName: String
+    let title: String
+    let description: String
+}
+
 final class PracticeExplainViewController: UIViewController {
     
-    // temp: 추후 설명용 이미지가 삽입될 영역
-    private let imageList: [String] = ["onboarding1.png", "onboarding2.png", "onboarding3.png", "onboarding4.png"]
-    private let titleList: [String] = ["Prepare tools","Prepare tools", "Draw an angry man", "Ready"]
-    private let descriptionList: [String] = ["If you do not have a CPR mannequin,\nplease prepare a plastic bottle, pillow, etc.", "Put the plastic bottle inside the clothes\nyou don't wear and wrap it up.", "Draw an angry man on your clothes or pillow\nusing tape or pen.", "Please press the location marked in red!"]
+    private let practiceInfoList: [PracticeInfo] = {
+        var infoList: [PracticeInfo] = []
+        
+        let imgList: [String] = ["onboarding1.png", "onboarding2.png", "onboarding3.png", "onboarding4.png"]
+        let titleList: [String] = ["pe_title_txt_1".localized(), "pe_title_txt_2".localized(), "pe_title_txt_3".localized(), "pe_title_txt_4".localized()]
+        let descriptionList: [String] = ["pe_des_txt_1".localized(), "pe_des_txt_2".localized(), "pe_des_txt_3".localized(), "pe_des_txt_4".localized()]
+        
+        for i in 0..<imgList.count {
+            infoList.append(PracticeInfo(imageName: imgList[i], title: titleList[i], description: descriptionList[i]))
+        }
+        return infoList
+    }()
     
     private lazy var pageControl: UIPageControl = {
         let pageControl = UIPageControl()
-        pageControl.numberOfPages = imageList.count
+        pageControl.numberOfPages = practiceInfoList.count
         pageControl.currentPage = 0
         pageControl.pageIndicatorTintColor = .mainLightGray
         pageControl.currentPageIndicatorTintColor = .black
@@ -141,11 +155,11 @@ final class PracticeExplainViewController: UIViewController {
             onboardingScrollView.heightAnchor.constraint(equalToConstant: 300)
         ])
         
-        for i in 0..<imageList.count {
+        for i in 0..<practiceInfoList.count {
             let imageView = UIImageView()
             let xPos = onboardingScrollView.frame.width * CGFloat(i)
             imageView.frame = CGRect(x: xPos, y: 0, width: 390, height: 300)
-            imageView.image = UIImage(named: imageList[i]) ?? UIImage()
+            imageView.image = UIImage(named: practiceInfoList[i].imageName) ?? UIImage()
             imageView.contentMode = .scaleAspectFit
             onboardingScrollView.addSubview(imageView)
             onboardingScrollView.contentSize.width = imageView.frame.width * CGFloat(i + 1)
@@ -170,8 +184,8 @@ final class PracticeExplainViewController: UIViewController {
     }
     
     func updateOnboardingComponent(index: Int) {
-        titleLabel.text = titleList[index]
-        descriptionLabel.text = descriptionList[index]
+        titleLabel.text = practiceInfoList[index].title
+        descriptionLabel.text = practiceInfoList[index].description
         pageControl.currentPage = index
     }
 }

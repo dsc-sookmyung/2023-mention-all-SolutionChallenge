@@ -18,7 +18,6 @@ struct UserInfo: Codable {
     let angel_status: Int
     let progress_percent: Double
     let is_lecture_completed: Int
-    let last_lecture_title: String
     let is_quiz_completed: Int
     let is_posture_completed: Int
     let days_left_until_expiration: Int?

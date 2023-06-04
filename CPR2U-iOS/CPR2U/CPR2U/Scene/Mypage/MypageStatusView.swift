@@ -133,8 +133,6 @@ final class MypageStatusView: UIView {
     
     private func setUpStyle() {
         self.layer.cornerRadius = 16
-        self.layer.borderColor = UIColor.mainRed.cgColor
-        self.layer.borderWidth = 1
         self.backgroundColor = .mainWhite
     }
     
@@ -144,10 +142,10 @@ final class MypageStatusView: UIView {
         var statusText: String = ""
         var leftDay: Int = 0
         if let day = certificate.leftDay {
-            statusText = "\(certificate.status.certificationStatus()) (D-\(day))"
+            statusText = "\(certificate.status.getStatus()) (D-\(day))"
             leftDay = day
         } else {
-            statusText = "\(certificate.status.certificationStatus())"
+            statusText = "\(certificate.status.getStatus())"
         }
         
         angelStatusImageView.image = UIImage(named: imgName)
@@ -155,11 +153,13 @@ final class MypageStatusView: UIView {
         
         [periodLabel, progressView, expirationLabel].forEach({$0.isHidden = (certificate.status != .acquired) })
         
-        progressView.progress = Float(leftDay)/90
+        progressView.progress = 1 - Float(leftDay)/90
         expirationLabel.text = leftDay.numberAsExpirationDate()
     }
     
     func setUpGreetingLabel(nickname: String) {
-        nicknameLabel.text = "Hi \(nickname)\nYour Certification Status is"
+        
+        let localizedStr = String(format:         "%@_greet_des_txt".localized(), nickname)
+        nicknameLabel.text = localizedStr
     }
 }

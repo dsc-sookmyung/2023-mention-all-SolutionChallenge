@@ -6,11 +6,21 @@
 //
 
 import Combine
+import GoogleMaps
 import UIKit
 
-class DispatchTimerView: UIView {
+protocol DispatchTimerViewDelegate: AnyObject {
+    func noticeAppear(dispatchId: Int)
+}
 
-    private let calledTime: Date?
+class DispatchTimerView: UIView {
+    
+    weak var delegate: DispatchTimerViewDelegate?
+    
+    private var dispatchId: Int?
+    
+    private var calledTime: Date?
+    private var callerInfo: CallerInfo?
     
     private let timeImageView: UIImageView = {
         let view = UIImageView()
@@ -18,21 +28,34 @@ class DispatchTimerView: UIView {
         return view
     }()
     
+    private let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(weight: .bold, size: 16)
+        label.textAlignment = .left
+        label.textColor = .mainRed
+        label.text = "elapsed_time_txt".localized()
+        return label
+    }()
     private lazy var timeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(weight: .bold, size: 48)
         label.textColor = .mainRed
-        label.textAlignment = .right
+        label.textAlignment = .center
         label.text = "00:00"
         return label
     }()
     
     private var timer: Timer.TimerPublisher?
+    
+    private var manager = MapManager()
+    private var viewModel: CallViewModel?
     private var cancellables = Set<AnyCancellable>()
 
-    init(calledTime: Date) {
-        self.calledTime = calledTime
+    init(callerInfo: CallerInfo, calledTime: Date, viewModel: CallViewModel) {
         super.init(frame: CGRect.zero)
+        self.calledTime = calledTime
+        self.callerInfo = callerInfo
+        self.viewModel = viewModel
         setUpConstraints()
         setUpStyle()
     }
@@ -43,57 +66,91 @@ class DispatchTimerView: UIView {
     
     private func setUpConstraints() {
 
-        let timeStackView   = UIStackView()
-        timeStackView.axis  = NSLayoutConstraint.Axis.horizontal
-        timeStackView.distribution  = UIStackView.Distribution.equalSpacing
+        let timeLabelStackView = UIStackView(arrangedSubviews: [
+            timeImageView,
+            descriptionLabel
+        ])
+        
+        timeLabelStackView.axis  = NSLayoutConstraint.Axis.horizontal
+        timeLabelStackView.alignment = UIStackView.Alignment.center
+        
+        timeLabelStackView.spacing   = 4
+        
+        NSLayoutConstraint.activate([
+            timeImageView.widthAnchor.constraint(equalToConstant: 16),
+            timeImageView.heightAnchor.constraint(equalToConstant: 16)
+        ])
+        
+        NSLayoutConstraint.activate([
+            descriptionLabel.heightAnchor.constraint(equalToConstant: 24)
+        ])
+        descriptionLabel.sizeToFit()
+        
+        let timeStackView = UIStackView()
+        timeStackView.axis  = NSLayoutConstraint.Axis.vertical
         timeStackView.alignment = UIStackView.Alignment.center
         timeStackView.spacing   = 8
-
         self.addSubview(timeStackView)
         timeStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        [
+            timeLabelStackView,
+            timeLabel
+        ].forEach({
+            timeStackView.addArrangedSubview($0)
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        })
+        
+        NSLayoutConstraint.activate([
+            timeLabel.widthAnchor.constraint(equalToConstant: 182),
+            timeLabel.heightAnchor.constraint(equalToConstant: 50)
+        ])
         
         NSLayoutConstraint.activate([
             timeStackView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             timeStackView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            timeStackView.widthAnchor.constraint(equalToConstant: 182),
-            timeStackView.heightAnchor.constraint(equalToConstant: 50)
-        ])
-        
-        [
-            timeImageView,
-            timeLabel
-        ].forEach({
-            timeStackView.addSubview($0)
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            $0.centerYAnchor.constraint(equalTo: timeStackView.centerYAnchor).isActive = true
-        })
-        
-        NSLayoutConstraint.activate([
-            timeImageView.leadingAnchor.constraint(equalTo: timeStackView.leadingAnchor),
-            timeImageView.widthAnchor.constraint(equalToConstant: 50),
-            timeImageView.heightAnchor.constraint(equalToConstant: 50)
+            timeStackView.heightAnchor.constraint(equalToConstant: 80)
         ])
         
         NSLayoutConstraint.activate([
-            timeLabel.trailingAnchor.constraint(equalTo: timeStackView.trailingAnchor),
-            timeLabel.widthAnchor.constraint(equalToConstant: 182),
-            timeLabel.heightAnchor.constraint(equalToConstant: 50)
+            timeLabelStackView.centerXAnchor.constraint(equalTo: timeStackView.centerXAnchor),
+            timeLabelStackView.heightAnchor.constraint(equalToConstant: 24)
         ])
+        timeLabelStackView.sizeToFit()
+        
     }
     
     private func setUpStyle() {
-        backgroundColor = .white
+        backgroundColor = UIColor(rgb: 0xF5F5F5)
     }
     
-    func setTimer() {
+    func setTimer(startTime: Int) {
         timer = Timer.publish(every: 1,tolerance: 0.9, on: .main, in: .default)
         timer?
             .autoconnect()
-            .scan(0) { counter, _ in counter + 1 }
+            .scan(startTime) { counter, _ in counter + 1 }
             .sink { [self] counter in
-                if counter == 301 {
+                if counter > 900 {
                     timer?.connect().cancel()
+                    parentViewController().dismiss(animated: true)
                 } else {
+                    let userLocation = manager.setLocation()
+                    guard let callerInfo = callerInfo else { return }
+                    let distance = calculateDistanceFromCurrentLocation(callerInfo: callerInfo, userLocation: userLocation)
+                    if distance < 20 {
+                        guard let dispatchId = dispatchId else { return }
+                        Task {
+                            guard let viewModel = viewModel else { return }
+                            let isSucceed = try await viewModel.dispatchEnd(dispatchId: dispatchId)
+                            if isSucceed  {
+                            } else {
+                                print("CAN'T DISMISS")
+                            }
+                        }
+                        delegate?.noticeAppear(dispatchId: dispatchId)
+                        cancelTimer()
+                        parentViewController().dismiss(animated: true)
+                    }
                     timeLabel.text = counter.numberAsTime()
                 }
             }.store(in: &cancellables)
@@ -102,5 +159,19 @@ class DispatchTimerView: UIView {
     func cancelTimer() {
         timer?.connect().cancel()
         timer = nil
+    }
+    
+    func setUpTimerText(startTime: Int) {
+        timeLabel.text = startTime.numberAsTime()
+    }
+    
+    func setDispatchComponent(dispatchId: Int) {
+        self.dispatchId = dispatchId
+    }
+    
+    func calculateDistanceFromCurrentLocation(callerInfo: CallerInfo, userLocation: CLLocationCoordinate2D) -> CLLocationDistance {
+        let callerLocation = CLLocationCoordinate2D(latitude: callerInfo.latitude, longitude: callerInfo.longitude)
+        let rawDistance = GMSGeometryDistance(userLocation, callerLocation)
+        return floor(rawDistance)
     }
 }

@@ -9,7 +9,12 @@ import Combine
 import CombineCocoa
 import UIKit
 
+protocol ReportViewControllerDelegate: AnyObject {
+    func noticeDisappear()
+}
 final class ReportViewController: UIViewController {
+    
+    weak var delegate: ReportViewControllerDelegate?
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -18,7 +23,7 @@ final class ReportViewController: UIViewController {
         label.adjustsFontSizeToFitWidth = true
         label.minimumScaleFactor = 0.5
         label.textColor = .mainBlack
-        label.text = "What are you trying to report?"
+        label.text = "report_ins_txt".localized()
         return label
     }()
     
@@ -27,11 +32,11 @@ final class ReportViewController: UIViewController {
         label.font = UIFont(weight: .regular, size: 14)
         label.textAlignment = .left
         label.textColor = .mainBlack
-        label.text = "Your report will be treated anonymously."
+        label.text = "report_des_txt".localized()
         return label
     }()
     
-    private let placeHolder = "Content*"
+    private let placeHolder = "report_phdr".localized()
     private let reportTextView: UITextView = {
         let view = UITextView()
         view.layer.cornerRadius = 6
@@ -51,17 +56,17 @@ final class ReportViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .mainRed
         button.layer.cornerRadius = 27.5
-        button.setTitle("SUBMIT", for: .normal)
+        button.setTitle("submit".localized(), for: .normal)
         return button
     }()
     
     private let dispatchId: Int
-    private let manager: DispatchManager
+    private let viewModel: CallViewModel
     private var cancellables = Set<AnyCancellable>()
     
-    init(dispatchId: Int, manager: DispatchManager) {
+    init(dispatchId: Int, viewModel: CallViewModel) {
         self.dispatchId = dispatchId
-        self.manager = manager
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -136,9 +141,10 @@ final class ReportViewController: UIViewController {
         submitButton.tapPublisher.sink { [self] in
             Task {
                 let reportInfo = ReportInfo(content: reportTextView.text, dispatch_id: dispatchId)
-                let result = try await manager.userReport(reportInfo: reportInfo)
-                if result.success {
+                let isSucceed = try await viewModel.userReport(reportInfo: reportInfo)
+                if isSucceed {
                     dismiss(animated: true)
+                    delegate?.noticeDisappear()
                 }
                 
             }
@@ -173,7 +179,7 @@ extension ReportViewController: UITextViewDelegate {
             textView.textColor = .black
         }
     }
-    
+
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             textView.text = placeHolder

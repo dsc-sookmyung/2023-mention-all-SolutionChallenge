@@ -23,6 +23,7 @@ enum Constants {
 
 final class PosePracticeViewController: UIViewController {
 
+    var person: Person?
     private let timeImageView: UIImageView = {
         let view = UIImageView()
         let config = UIImage.SymbolConfiguration(pointSize: 26, weight: .regular, scale: .medium)
@@ -57,10 +58,12 @@ final class PosePracticeViewController: UIViewController {
         button.layer.cornerRadius = 19
         button.titleLabel?.font = UIFont(weight: .bold, size: 17)
         button.setTitleColor(.mainWhite, for: .normal)
-        button.setTitle("QUIT", for: .normal)
+        button.setTitle("quit".localized(), for: .normal)
         return button
     }()
     
+    private let poseAvailabilityCheckView = PoseAvailabilityCheckView()
+    private let posePracticeCountDownView = PosePracticeCountDownView()
     private lazy var overlayView = CameraOverlayView()
     
     // MARK: Pose estimation model configs
@@ -83,6 +86,8 @@ final class PosePracticeViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     private var audioPlayer: AVAudioPlayer!
     
+    private let assumePostureCountSec = 3
+    
     init(viewModel: EducationViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -99,8 +104,8 @@ final class PosePracticeViewController: UIViewController {
         setUpConstraints()
         updateModel()
         configCameraCapture()
-        setTimer()
-        playSound()
+        setPoseAssumeTimer()
+        setUpAudioPlayer()
         setUpAction()
     }
     
@@ -128,6 +133,8 @@ final class PosePracticeViewController: UIViewController {
         
         [
             overlayView,
+            poseAvailabilityCheckView,
+            posePracticeCountDownView,
             timeImageView,
             timeLabel,
             soundImageView,
@@ -174,6 +181,20 @@ final class PosePracticeViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
+            poseAvailabilityCheckView.topAnchor.constraint(equalTo: view.topAnchor),
+            poseAvailabilityCheckView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            poseAvailabilityCheckView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            poseAvailabilityCheckView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        NSLayoutConstraint.activate([
+            posePracticeCountDownView.topAnchor.constraint(equalTo: view.topAnchor),
+            posePracticeCountDownView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            posePracticeCountDownView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            posePracticeCountDownView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+
+        NSLayoutConstraint.activate([
             overlayView.topAnchor.constraint(equalTo: view.topAnchor),
             overlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             overlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -200,50 +221,76 @@ final class PosePracticeViewController: UIViewController {
         }
     }
     
+    private func setPoseAssumeTimer() {
+        viewModel.timer = Timer.publish(every: 0.1, on: .current, in: .common)
+        viewModel.timer
+            .autoconnect()
+            .scan(0) { counter, _ in counter + 1 }
+            .sink { [weak self] counter in
+                guard let self = self, let person = person else { return }
+                if (self.overlayView.measureIsPreparing(person: person)) {
+                    self.poseAvailabilityCheckView.fadeOut()
+                    self.posePracticeCountDownView.fadeIn()
+                    self.viewModel.timer.connect().cancel()
+                    setTimer()
+                    playSound()
+                }
+        }.store(in: &cancellables)
+    }
+    
     private func setTimer() {
         let count = viewModel.timeLimit()
         viewModel.timer = Timer.publish(every: 1, on: .current, in: .common)
         viewModel.timer
             .autoconnect()
-            .scan(0) { counter, _ in counter + 1 }
+            .scan(1) { counter, _ in counter + 1 }
             .sink { [self] counter in
-                if counter > 5 {
-                    timeLabel.text = (count - counter - 5).numberAsTime()
-                    if counter == count - 5 {
+                if counter > assumePostureCountSec + 1 {
+                    timeLabel.text = (count - counter - assumePostureCountSec).numberAsTime()
+                    if counter == count - assumePostureCountSec {
                         cameraFeedManager.stopRunning()
-                        viewModel.setPostureResult(compCount: overlayView.getCompressionTotalCount(), armAngleCount: overlayView.getArmAngleRate(), pressDepth: overlayView.getAveragePressDepth())
+                        viewModel.setPostureResult(compCount: overlayView.getCprRateResult(), armAngleCount: overlayView.getArmAngleResult(), pressDepth: overlayView.getCprDepthResult())
                         Task {
                             usleep(1000000)
-                            audioPlayer.stop()
+                            audioPlayer?.stop()
                             let vc = PosePracticeResultViewController(viewModel: viewModel)
                             vc.modalPresentationStyle = .overFullScreen
                             self.present(vc, animated: true)
                         }
                     viewModel.timer.connect().cancel()
+                    }
+                } else if counter == assumePostureCountSec + 1 {
+                    timeLabel.text = (count - counter - assumePostureCountSec).numberAsTime()
+                    posePracticeCountDownView.fadeOut()
+                    overlayView.flag = true
+                } else {
+                    posePracticeCountDownView.changeTimerValue(to: counter - 1)
                 }
-            }
         }.store(in: &cancellables)
     }
     
     private func setUpAction() {
         soundSwitch.isOnPublisher.sink { isOn in
-            self.audioPlayer.volume = isOn ? 1 : 0
+            self.audioPlayer?.volume = isOn ? 1 : 0
         }.store(in: &cancellables)
         
         quitButton.tapPublisher.sink { [weak self] in
-            self?.audioPlayer.stop()
+            self?.audioPlayer?.stop()
             self?.setUpOrientation(as: .portrait)
             self?.dismiss(animated: true)
         }.store(in: &cancellables)
     }
     
-    private func playSound() {
+    private func setUpAudioPlayer() {
         guard let url = Bundle.main.url(forResource: "CPR_Posture_Sound", withExtension: "mp3") else { return }
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
         } catch (let error) {
             print(error)
         }
+    }
+    
+    private func playSound() {
         audioPlayer?.play()
     }
 
@@ -277,8 +324,8 @@ extension PosePracticeViewController: CameraFeedManagerDelegate {
                         self.overlayView.image = image
                         return
                     }
-                    
                     self.overlayView.draw(at: image, person: result)
+                    self.person = result
                 }
             } catch {
                 os_log("Error running pose estimation.", type: .error)

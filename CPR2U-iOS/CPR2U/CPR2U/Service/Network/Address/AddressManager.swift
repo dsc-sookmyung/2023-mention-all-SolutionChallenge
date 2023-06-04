@@ -8,7 +8,6 @@
 import Foundation
 
 protocol AddressService {
-    func getAddressList() async throws -> (success: Bool, data: [AddressListResult]?)
     func setUserAddress(id: Int) async throws -> (success: Bool, data: SetUserAddressResult?)
 }
 
@@ -18,13 +17,6 @@ struct AddressManager: AddressService {
     
     init(service: Requestable) {
         self.service = service
-    }
-    
-    func getAddressList() async throws -> (success: Bool, data: [AddressListResult]?) {
-        let request = AddressEndPoint
-            .getAddressList
-            .createRequest()
-        return try await self.service.request(request)
     }
     
     func setUserAddress(id: Int) async throws -> (success: Bool, data: SetUserAddressResult?) {
