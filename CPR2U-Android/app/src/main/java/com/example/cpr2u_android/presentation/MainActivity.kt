@@ -1,5 +1,6 @@
 package com.example.cpr2u_android.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,10 +10,14 @@ import com.example.cpr2u_android.presentation.base.BaseActivity
 import com.example.cpr2u_android.presentation.call.CallFragment
 import com.example.cpr2u_android.presentation.education.EducationFragment
 import com.example.cpr2u_android.presentation.profile.ProfileFragment
+import timber.log.Timber
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val dispatchId = intent.getIntExtra("callId", -1)
+        Timber.d("dispatchId $dispatchId")
         binding.bottomNavigation.selectedItemId = R.id.menu_call
         binding.bottomNavigation.setOnItemSelectedListener {
             when (it.itemId) {

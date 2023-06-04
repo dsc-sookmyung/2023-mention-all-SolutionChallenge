@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -70,15 +72,12 @@
             android:name="com.example.cpr2u_android.presentation.education.LectureActivity"
             android:exported="true" />
         <activity
-            android:name="com.example.cpr2u_android.presentation.auth.SignUpActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
             android:name="com.example.cpr2u_android.presentation.auth.LoginActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="com.example.cpr2u_android.presentation.MainActivity"
+            android:launchMode="singleInstance"
             android:exported="true" />
     </application>
 

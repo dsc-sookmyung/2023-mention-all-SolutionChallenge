@@ -28,4 +28,8 @@ class AuthRemoteDataSource(private val authService: AuthService) : AuthDataSourc
     override suspend fun postSignUp(signUpData: RequestSignUp): ResponseAutoLogin {
         return authService.postSignUp(signUpData)
     }
+
+    override suspend fun postLogout(): GeneralResponse {
+        return authService.postLogout()
+    }
 }

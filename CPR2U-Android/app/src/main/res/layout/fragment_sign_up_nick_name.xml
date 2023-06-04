@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+
+        <variable
+            name="isError"
+            type="Boolean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".presentation.auth.SignUpNickNameFragment">
+
+        <TextView
+            android:id="@+id/tv_login_check_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:fontFamily="@font/notosans_bold"
+            android:text="@string/signup_title"
+            android:textColor="@color/black"
+            android:textSize="23sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_login_check_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/notosans_regular"
+            android:text="@string/signup_subtitle"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/tv_login_check_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_login_check_title" />
+
+        <EditText
+            android:id="@+id/et_nickname"
+            android:layout_width="match_parent"
+            android:layout_height="47dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="21dp"
+            android:background="@{isError? @drawable/rectangle_border_main_red_radius_6dp : @drawable/rectangle_border_gray_radius_6dp}"
+            android:hint="@string/signup_hint"
+            android:inputType="textNoSuggestions"
+            android:paddingHorizontal="16dp"
+            android:textColorHint="@color/light_gray"
+            app:layout_constraintTop_toBottomOf="@id/tv_login_check_subtitle" />
+
+        <TextView
+            android:id="@+id/tv_error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/main_red"
+            android:textSize="14sp"
+            android:visibility="@{isError? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintStart_toStartOf="@id/et_nickname"
+            app:layout_constraintTop_toBottomOf="@id/et_nickname"
+            tools:text="error" />
+
+        <TextView
+            android:id="@+id/tv_confirm"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginHorizontal="26dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/rectangle_fill_red_radius_100dp"
+            android:fontFamily="@font/notosans_bold"
+            android:gravity="center"
+            android:text="@string/signup_continue"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

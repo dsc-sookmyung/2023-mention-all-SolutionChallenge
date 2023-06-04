@@ -37,4 +37,7 @@ interface AuthService {
     suspend fun postSignUp(
         @Body body: RequestSignUp,
     ): ResponseAutoLogin
+
+    @POST("auth/logout")
+    suspend fun postLogout(): GeneralResponse
 }

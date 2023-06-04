@@ -18,5 +18,23 @@
         android:id="@+id/loginPhoneNumberCheckFragment"
         android:name="com.example.cpr2u_android.presentation.auth.LoginPhoneNumberCheckFragment"
         android:label="LoginPhoneNumberCheckFragment"
-        tools:layout="@layout/fragment_login_phone_number_check" />
+        tools:layout="@layout/fragment_login_phone_number_check" >
+        <action
+            android:id="@+id/action_loginPhoneNumberCheckFragment_to_signUpNickNameFragment"
+            app:destination="@id/signUpNickNameFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpNickNameFragment"
+        android:name="com.example.cpr2u_android.presentation.auth.SignUpNickNameFragment"
+        tools:layout="@layout/fragment_sign_up_nick_name"
+        android:label="SignUpNickNameFragment" >
+        <action
+            android:id="@+id/action_signUpNickNameFragment_to_signUpAddressFragment"
+            app:destination="@id/signUpAddressFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpAddressFragment"
+        android:name="com.example.cpr2u_android.presentation.auth.SignUpAddressFragment"
+        tools:layout="@layout/fragment_sign_up_address"
+        android:label="SignUpAddressFragment" />
 </navigation>

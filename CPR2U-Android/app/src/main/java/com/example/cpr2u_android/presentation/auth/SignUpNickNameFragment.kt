@@ -1,51 +1,41 @@
 package com.example.cpr2u_android.presentation.auth
 
-import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
+import androidx.navigation.fragment.findNavController
 import com.example.cpr2u_android.R
-import com.example.cpr2u_android.databinding.ActivitySignUpBinding
-import com.example.cpr2u_android.presentation.MainActivity
-import com.example.cpr2u_android.presentation.base.BaseActivity
+import com.example.cpr2u_android.databinding.FragmentSignUpNickNameBinding
+import com.example.cpr2u_android.presentation.base.BaseFragment
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import java.util.regex.Pattern
 
-class SignUpActivity : BaseActivity<ActivitySignUpBinding>(R.layout.activity_sign_up) {
-    private val authViewModel: AuthViewModel by viewModel()
+class SignUpNickNameFragment :
+    BaseFragment<FragmentSignUpNickNameBinding>(R.layout.fragment_sign_up_nick_name) {
+    private val authViewModel: AuthViewModel by sharedViewModel()
     private var phoneNumber: String = ""
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-        phoneNumber = intent.getStringExtra("phoneNumber").toString()
-        initTextChangeEvent()
-//        observeIsValidNickname()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initConfirmClickListener()
+        initTextChangeEvent()
     }
 
     private fun initConfirmClickListener() {
         binding.tvConfirm.setOnClickListener {
             if (binding.isError == false) {
-                authViewModel.getNickname(binding.etNickname.text.toString())
-                authViewModel.isValidNickname.observe(this) {
+                authViewModel.getValidNickname(binding.etNickname.text.toString())
+                authViewModel.isValidNickname.observe(requireActivity()) {
                     if (it) {
-                        authViewModel.postSignUp(
-                            nickname = binding.etNickname.text.toString(),
-                            phoneNumber = phoneNumber,
-                        )
-                        authViewModel.isSuccess.observe(this) {
-                            if (it) {
-                                Timber.d("회원가입 성공")
-                                navigateToNext()
-                            } else {
-                                Timber.d("회원가입 실패")
-                            }
-                        }
+                        authViewModel.setNickname(binding.etNickname.text.toString())
+                        navigateToNext()
                     } else {
                         Timber.d("is valid -> false")
                         Toast.makeText(
-                            this,
+                            requireActivity(),
                             "중복된 닉네임입니다. 다른 닉네임을 입력해주세요.",
                             Toast.LENGTH_SHORT,
                         ).show()
@@ -59,8 +49,9 @@ class SignUpActivity : BaseActivity<ActivitySignUpBinding>(R.layout.activity_sig
     }
 
     private fun navigateToNext() {
-        startActivity(Intent(this@SignUpActivity, MainActivity::class.java))
-        finish()
+        findNavController().navigate(
+            R.id.action_signUpNickNameFragment_to_signUpAddressFragment,
+        )
     }
 
     private fun observeIsValidNickname() {

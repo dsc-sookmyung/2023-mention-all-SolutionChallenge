@@ -7,6 +7,7 @@ import android.view.View.OnFocusChangeListener
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
+import androidx.navigation.fragment.findNavController
 import com.example.cpr2u_android.R
 import com.example.cpr2u_android.data.model.request.auth.RequestLogin
 import com.example.cpr2u_android.data.sharedpref.CPR2USharedPreference
@@ -53,7 +54,7 @@ class LoginPhoneNumberCheckFragment :
                     signInViewModel.postLogin(
                         RequestLogin(
                             deviceToken = CPR2USharedPreference.getDeviceToken(),
-                            phoneNumber = phoneNumber
+                            phoneNumber = phoneNumber,
 //                            CPR2USharedPreference.getDeviceToken(),
 //                            smsCodeStr,
                         ),
@@ -69,18 +70,17 @@ class LoginPhoneNumberCheckFragment :
     }
 
     private fun navigateToNext(it: Boolean) {
-        val nextView = if (it) {
-            Timber.d("it -> true")
-            MainActivity::class.java
+        if (it) {
+            val intent =
+                Intent(requireContext(), MainActivity::class.java)
+            startActivity(intent)
+            requireActivity().finishAffinity()
         } else {
-            Timber.d("it -> false")
-            SignUpActivity::class.java
+            signInViewModel.setPhoneNumber(phoneNumber)
+            findNavController().navigate(
+                R.id.action_loginPhoneNumberCheckFragment_to_signUpNickNameFragment,
+            )
         }
-        val intent =
-            Intent(requireContext(), nextView)
-        intent.putExtra("phoneNumber", phoneNumber)
-        startActivity(intent)
-        requireActivity().finishAffinity()
     }
 
     private fun initSmsCodeEvent() {
@@ -95,6 +95,7 @@ class LoginPhoneNumberCheckFragment :
             smsCode[i].onFocusChangeListener = OnFocusChangeListener { view, hasFocus ->
                 if (hasFocus) {
                     smsCode[i].text.clear()
+                    smsCodeStr = ""
                 }
             }
         }

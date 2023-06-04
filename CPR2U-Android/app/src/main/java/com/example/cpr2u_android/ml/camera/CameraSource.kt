@@ -179,14 +179,11 @@ class CameraSource(
         for (cameraId in cameraManager.cameraIdList) {
             val characteristics = cameraManager.getCameraCharacteristics(cameraId)
 
-            // We don't use a front facing camera in this sample.
             val cameraDirection = characteristics.get(CameraCharacteristics.LENS_FACING)
-            if (cameraDirection != null &&
-                cameraDirection == CameraCharacteristics.LENS_FACING_FRONT
-            ) {
-                continue
+            if (cameraDirection != null && cameraDirection == CameraCharacteristics.LENS_FACING_FRONT) {
+                this.cameraId = cameraId
+                break
             }
-            this.cameraId = cameraId
         }
     }
 
@@ -292,36 +289,49 @@ class CameraSource(
             isTrackerEnabled,
         )
 
+        // 좌우 반전을 위해 이미지를 뒤집는다.
+        val matrix = Matrix()
+        matrix.postScale(-1f, 1f)
+        val flippedBitmap = Bitmap.createBitmap(
+            outputBitmap, 0, 0, outputBitmap.width, outputBitmap.height, matrix, true
+        )
+
         val holder = surfaceView.holder
         val surfaceCanvas = holder.lockCanvas()
         surfaceCanvas?.let { canvas ->
-            val screenWidth: Int
-            val screenHeight: Int
+            val screenWidth = canvas.width
+            val screenHeight = canvas.height
+            val imageWidth = flippedBitmap.width
+            val imageHeight = flippedBitmap.height
+
+            val screenRatio = screenWidth.toFloat() / screenHeight
+            val imageRatio = imageWidth.toFloat() / imageHeight
+
             val left: Int
             val top: Int
+            val right: Int
+            val bottom: Int
 
-            if (canvas.height > canvas.width) {
-                val ratio = outputBitmap.height.toFloat() / outputBitmap.width
-                screenWidth = canvas.width
-                left = 0
-                screenHeight = (canvas.width * ratio).toInt()
-                top = (canvas.height - screenHeight) / 2
-            } else {
-                val ratio = outputBitmap.width.toFloat() / outputBitmap.height
-                screenHeight = canvas.height
+            if (imageRatio > screenRatio) {
+                // 이미지의 가로 비율이 더 크면, 좌우에 여백이 생깁니다.
+                val targetWidth = (screenHeight / imageHeight.toFloat() * imageWidth).toInt()
+                val margin = (screenWidth - targetWidth) / 2
+                left = margin
                 top = 0
-                screenWidth = (canvas.height * ratio).toInt()
-                left = (canvas.width - screenWidth) / 2
+                right = screenWidth - margin
+                bottom = screenHeight
+            } else {
+                // 이미지의 세로 비율이 더 크거나 같으면, 상하에 여백이 생깁니다.
+                val targetHeight = (screenWidth / imageWidth.toFloat() * imageHeight).toInt()
+                val margin = (screenHeight - targetHeight) / 2
+                left = 0
+                top = margin
+                right = screenWidth
+                bottom = screenHeight - margin
             }
-            val right: Int = left + screenWidth
-            val bottom: Int = top + screenHeight
 
-            canvas.drawBitmap(
-                outputBitmap,
-                Rect(0, 0, outputBitmap.width, outputBitmap.height),
-                Rect(left, top, right, bottom),
-                null,
-            )
+            val destRect = Rect(left, top, right, bottom)
+            canvas.drawBitmap(flippedBitmap, null, destRect, null)
             surfaceView.holder.unlockCanvasAndPost(canvas)
         }
     }

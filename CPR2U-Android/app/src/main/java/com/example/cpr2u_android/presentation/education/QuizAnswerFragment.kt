@@ -50,11 +50,11 @@ class QuizAnswerFragment : BaseFragment<FragmentQuizAnswerBinding>(R.layout.frag
                     binding.ivHeart.visibility = View.VISIBLE
                     binding.ivHeartGray.visibility = View.INVISIBLE
                     binding.tvTitle.text = "Congratulation!"
-                    binding.tvSubtitle.text = "You are perfect!"
+                    binding.tvSubtitle.text = "You have completed the Quiz!\nYou are one step closer to becoming \na CPR Angel!"
                 } else {
                     binding.ivHeart.visibility = View.INVISIBLE
                     binding.ivHeartGray.visibility = View.VISIBLE
-                    binding.tvTitle.text = "Failed: ${educationViewModel.correctCount} / 5"
+                    binding.tvTitle.text = "Quiz Failed: ${educationViewModel.correctCount}/5"
                     binding.tvSubtitle.text = "Try Again"
                 }
 

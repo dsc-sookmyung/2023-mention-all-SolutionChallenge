@@ -13,20 +13,30 @@
         android:background="@color/main_red"
         tools:context=".presentation.call.CallingActivity">
 
+        <ImageView
+            android:id="@+id/iv_caution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="42dp"
+            android:background="@drawable/ic_caution"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/tv_call_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="20dp"
             android:fontFamily="@font/notosans_bold"
+            android:gravity="center"
             android:includeFontPadding="false"
-            android:text="Call"
+            android:text="Your call has been\nsent to the CPR Angels\nnear you."
             android:textColor="@color/white"
-            android:textSize="64sp"
+            android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/iv_caution" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -45,53 +55,56 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <ImageView
-                    android:id="@+id/iv_call_people"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_call_people"
-                    app:layout_constraintBottom_toBottomOf="@+id/tv_approaching_people"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/tv_approaching_people" />
-
                 <TextView
                     android:id="@+id/tv_approaching_people"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/notosans_bold"
+                    android:fontFamily="@font/notosans_regular"
                     android:includeFontPadding="false"
                     android:text="0"
-                    android:layout_marginHorizontal="8dp"
-                    android:textColor="@color/main_red"
-                    android:textSize="48sp"
-                    app:layout_constraintStart_toEndOf="@+id/iv_call_people"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_match_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/notosans_regular"
+                    android:includeFontPadding="false"
+                    android:text=" CPR Angels Matched!"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_approaching_people"
+                    app:layout_constraintStart_toEndOf="@+id/tv_approaching_people"
+                    app:layout_constraintTop_toTopOf="@+id/tv_approaching_people" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/notosans_bold"
-                    android:text="Approaching"
+                    android:fontFamily="@font/notosans_regular"
+                    android:text="It’s coming this way."
                     android:textColor="@color/black"
-                    android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/tv_approaching_people"
-                    app:layout_constraintStart_toEndOf="@+id/tv_approaching_people"
-                    app:layout_constraintTop_toTopOf="@+id/tv_approaching_people" />
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="@id/tv_match_title"
+                    app:layout_constraintStart_toStartOf="@id/tv_approaching_people"
+                    app:layout_constraintTop_toBottomOf="@id/tv_match_title" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cl_approaching">
 
                 <ImageView
                     android:id="@+id/iv_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:src="@drawable/ic_time_circle"
                     app:layout_constraintBottom_toBottomOf="@id/tv_minute"
                     app:layout_constraintStart_toStartOf="parent"
@@ -106,7 +119,7 @@
                     android:includeFontPadding="false"
                     android:text="00 : 00"
                     android:textColor="@color/main_red"
-                    android:textSize="48sp"
+                    android:textSize="44sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/iv_time"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -135,10 +148,10 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:layout_marginHorizontal="16dp"
-            android:padding="24dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/rectangle_border_red_fill_white_radius_20dp"
+            android:padding="24dp"
             app:layout_constraintBottom_toBottomOf="parent">
 
             <TextView

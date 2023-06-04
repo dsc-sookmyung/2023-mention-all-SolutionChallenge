@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="42dp"
             android:fontFamily="@font/notosans_bold"
-            android:text="01:57"
+            android:text="00:00"
             android:textColor="@color/black"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="@id/iv_clock"
@@ -57,6 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
+            android:checked="true"
             android:thumb="@drawable/oval_switch_thumb"
             app:layout_constraintBottom_toBottomOf="@id/iv_metronome"
             app:layout_constraintStart_toEndOf="@id/iv_metronome"
@@ -80,6 +81,75 @@
         <include
             layout="@layout/bottom_sheet_layout"
             android:visibility="invisible" />
+
+        <View
+            android:id="@+id/view_3_seconds"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#06E4E4E4" />
+
+        <ImageView
+            android:id="@+id/iv_cpr_guidelines"
+            android:layout_width="390dp"
+            android:layout_height="390dp"
+            android:background="@drawable/ic_cpr_guidelines"
+            app:layout_constraintBottom_toBottomOf="@+id/surfaceView"
+            app:layout_constraintEnd_toEndOf="@+id/surfaceView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_ready_3_seconds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/notosans_bold"
+            android:text="Please assume the position"
+            android:textColor="@color/main_red"
+            android:textSize="42sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_3_seconds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_3_seconds_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/notosans_bold"
+                android:text="Time Until Posture Measurement Begins"
+                android:textColor="@color/main_red"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.example.cpr2u_android.util.OutLineTextView
+                android:id="@+id/tv_3_seconds_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:textColor="@color/main_red"
+                android:textSize="98sp"
+                tools:text="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_3_seconds_description"
+                app:textStrokeColor="#B50000"
+                app:textStrokeWidth="10" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

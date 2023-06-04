@@ -31,4 +31,8 @@ class AuthRepositoryImpl(private val authDataSource: AuthDataSource) : AuthRepos
     override suspend fun postSignUp(signUpData: RequestSignUp): ResponseAutoLogin {
         return authDataSource.postSignUp(signUpData)
     }
+
+    override suspend fun postLogout(): GeneralResponse {
+        return authDataSource.postLogout()
+    }
 }

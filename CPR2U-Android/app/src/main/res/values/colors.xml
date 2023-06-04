@@ -13,7 +13,10 @@
     <color name="main_red">#F74346</color>
     <color name="main_light_red">#FBA1A2</color>
     <color name="light_gray">#D9D9D9</color>
+    <color name="education_gray">#828282</color>
+    <color name="dark_gray">#525252</color>
     <color name="sub_orange">#FC7037</color>
     <color name="sub_pink">#FF0050</color>
+    <color name="light_brown">#F4EFEA</color>
 
 </resources>

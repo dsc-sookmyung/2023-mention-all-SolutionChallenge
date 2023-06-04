@@ -8,6 +8,9 @@
         <variable
             name="map_info"
             type="com.example.cpr2u_android.domain.model.CallInfoBottomSheet" />
+        <variable
+            name="start_time"
+            type="String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,44 +24,57 @@
             android:id="@+id/cl_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/rectangle_border_red_fill_white_radius_20dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="26dp"
+            android:background="@drawable/rectangle_border_red_radius_16dp"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/iv_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
                 android:src="@drawable/ic_location"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/tv_patient_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/notosans_regular"
+                android:includeFontPadding="false"
+                android:text="Patient Location"
+                android:textColor="#939393"
+                android:textSize="12dp"
+                app:layout_constraintStart_toEndOf="@id/iv_location"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
                 android:id="@+id/tv_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="12dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="10dp"
                 android:fontFamily="@font/notosans_regular"
+                android:includeFontPadding="false"
                 android:text="@{map_info.fullAddress}"
                 android:textColor="@color/black"
                 android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/iv_location"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_patient_location"
                 tools:text="100 Cheongpa-dong 3-ga, Yongsan-gu" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_marker_info"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/rectangle_border_gray_radius_6dp"
+            android:layout_height="108dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="25dp"
+            android:background="@drawable/rectangle_fill_lightgray_radius_16dp"
             app:layout_constraintTop_toBottomOf="@id/cl_location">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -74,7 +90,7 @@
                     android:id="@+id/iv_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_duration"
+                    android:src="@drawable/ic_clock"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -84,9 +100,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/notosans_regular"
-                    android:text="Duration"
+                    android:text="Start time"
                     android:textColor="@color/black"
-                    android:textSize="14sp"
+                    android:textSize="12dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/iv_duration" />
@@ -96,9 +112,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/notosans_regular"
-                    android:text="@{map_info.duration+`m`}"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
+                    android:text="@{start_time}"
+                    android:textColor="@color/main_red"
+                    android:textSize="18dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tv_duration_title" />
@@ -138,9 +154,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/notosans_regular"
-                    android:text="Duration"
+                    android:text="Distance"
                     android:textColor="@color/black"
-                    android:textSize="14sp"
+                    android:textSize="12dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/iv_distance" />
@@ -152,7 +168,7 @@
                     android:fontFamily="@font/notosans_regular"
                     android:text="@{map_info.distance}"
                     android:textColor="@color/black"
-                    android:textSize="18sp"
+                    android:textSize="18dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tv_distance_title" />
@@ -164,10 +180,10 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_timer"
             android:layout_width="match_parent"
-            android:layout_height="108dp"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/rectangle_border_gray_radius_6dp"
+            android:layout_height="118dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="25dp"
+            android:background="@drawable/rectangle_border_lightgray_fill_gray_radius_16dp"
             app:layout_constraintTop_toBottomOf="@id/cl_location">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -178,28 +194,49 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <ImageView
-                    android:id="@+id/iv_time"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cl_elapsed_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_time_circle"
-                    app:layout_constraintBottom_toBottomOf="@id/tv_minute"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/tv_minute" />
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/iv_time"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_time_circle"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_time_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_regular"
+                        android:includeFontPadding="false"
+                        android:text="Elapsed Time"
+                        android:textColor="@color/main_red"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="@id/iv_time"
+                        app:layout_constraintStart_toEndOf="@id/iv_time"
+                        app:layout_constraintTop_toTopOf="@id/iv_time" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
                     android:id="@+id/tv_minute"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:fontFamily="@font/notosans_bold"
                     android:includeFontPadding="false"
                     android:text="00 : 00"
                     android:textColor="@color/main_red"
                     android:textSize="48sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/iv_time"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/cl_elapsed_time" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -208,9 +245,9 @@
             android:id="@+id/tv_dispatch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/rectangle_fill_red_radius_100dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/rectangle_fill_red_radius_16dp"
             android:fontFamily="@font/notosans_bold"
             android:gravity="center"
             android:paddingVertical="17dp"
@@ -224,15 +261,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="13dp"
-            android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/notosans_regular"
-            android:text="Wrong Report? Report"
+            android:gravity="center"
+            android:text="When you arrive at your destination,\ndispatch ends automatically."
             android:textColor="@color/black"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_dispatch" />
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_dispatch"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

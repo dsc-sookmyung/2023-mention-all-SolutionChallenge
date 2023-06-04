@@ -16,4 +16,5 @@ interface AuthRepository {
     suspend fun postLogin(loginData: RequestLogin): ResponseLogin
     suspend fun getNickname(nickname: String): GeneralResponse
     suspend fun postSignUp(signUpData: RequestSignUp): ResponseAutoLogin
+    suspend fun postLogout(): GeneralResponse
 }

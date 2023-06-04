@@ -9,7 +9,8 @@ import com.example.cpr2u_android.databinding.ActivityCallingBinding
 import com.example.cpr2u_android.presentation.base.BaseActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
-import java.util.*
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.properties.Delegates
 
 class CallingActivity : BaseActivity<ActivityCallingBinding>(R.layout.activity_calling) {
@@ -40,21 +41,10 @@ class CallingActivity : BaseActivity<ActivityCallingBinding>(R.layout.activity_c
                     Timber.d("#### 에엥...")
                 }
             }
-//            callViewModel.callEndUIState.flowWithLifecycle(lifecycle).onEach {
-//                when (it) {
-//                    is UiState.Success -> {
-//                        Timber.d("success")
-//                        handler.removeCallbacks(updater)
-//                        finish()
-//                    }
-//                    is UiState.Loading -> {
-//                        Timber.d("Loading..")
-//                    }
-//                    else -> {
-//                        Timber.d("fail...")
-//                    }
-//                }
-//            }
+        }
+
+        callViewModel.numberOfAngels.observe(this) {
+            binding.tvApproachingPeople.text = it.toString()
         }
 
         timerText = binding.tvMinute
@@ -62,9 +52,9 @@ class CallingActivity : BaseActivity<ActivityCallingBinding>(R.layout.activity_c
         time = object : TimerTask() {
             override fun run() {
                 updateTime()
-                if (timerSec >= 300) return
+                if (timerSec >= 600) return
                 if (timerSec % 15 == 0) {
-                    // TODO : 15초마다 서버 통신
+                    callViewModel.getNumbersOfAngel(callId)
                 }
                 timerSec++
             }

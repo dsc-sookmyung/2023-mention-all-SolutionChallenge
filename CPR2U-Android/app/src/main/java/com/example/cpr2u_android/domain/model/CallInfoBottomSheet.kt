@@ -5,4 +5,5 @@ data class CallInfoBottomSheet(
     var distance: String,
     var duration: String,
     var fullAddress: String,
+    var callAt: String
 )

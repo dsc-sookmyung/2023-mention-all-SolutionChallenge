@@ -28,6 +28,11 @@
     <string name="menu_call">call</string>
     <string name="menu_profile">profile</string>
     <string name="title_activity_quiz">QuizActivity</string>
+
+    <!-- education -->
+    <string name="completed">COMPLETED!</string>
+    <string name="not_completed">Not Completed</string>
+    <string name="not_opened">Not opened</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>

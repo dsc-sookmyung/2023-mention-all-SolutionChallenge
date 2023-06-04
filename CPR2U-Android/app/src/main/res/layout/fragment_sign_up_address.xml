@@ -5,17 +5,13 @@
 
     <data>
 
-        <import type="android.view.View" />
-        
-        <variable
-            name="isError"
-            type="Boolean" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".presentation.auth.SignUpActivity">
+        tools:context=".presentation.auth.SignUpAddressFragment">
 
         <TextView
             android:id="@+id/tv_login_check_title"
@@ -24,7 +20,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
             android:fontFamily="@font/notosans_bold"
-            android:text="@string/signup_title"
+            android:text="Select your Address"
             android:textColor="@color/black"
             android:textSize="23sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,36 +31,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/notosans_regular"
-            android:text="@string/signup_subtitle"
+            android:text="Select your address for CPR Angel activities"
             android:textColor="@color/black"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="@id/tv_login_check_title"
             app:layout_constraintTop_toBottomOf="@id/tv_login_check_title" />
 
-        <EditText
-            android:id="@+id/et_nickname"
+        <TextView
+            android:id="@+id/tv_sido"
             android:layout_width="match_parent"
-            android:layout_height="47dp"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="21dp"
-            android:background="@{isError? @drawable/rectangle_border_main_red_radius_6dp : @drawable/rectangle_border_gray_radius_6dp}"
-            android:hint="@string/signup_hint"
-            android:inputType="textNoSuggestions"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/rectangle_border_gray_radius_6dp"
+            android:fontFamily="@font/notosans_regular"
             android:paddingHorizontal="16dp"
-            android:textColorHint="@color/light_gray"
-            app:layout_constraintTop_toBottomOf="@id/tv_login_check_subtitle" />
+            android:paddingVertical="14dp"
+            android:text="시 / 도"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@+id/tv_login_check_subtitle" />
+
 
         <TextView
-            android:id="@+id/tv_error_message"
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_gugun"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:textColor="@color/main_red"
-            android:textSize="14sp"
-            android:visibility="@{isError? View.VISIBLE : View.INVISIBLE}"
-            app:layout_constraintStart_toStartOf="@id/et_nickname"
-            app:layout_constraintTop_toBottomOf="@id/et_nickname"
-            tools:text="error" />
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/rectangle_border_gray_radius_6dp"
+            android:fontFamily="@font/notosans_regular"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp"
+            android:text="구 / 군"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@+id/tv_sido" />
 
         <TextView
             android:id="@+id/tv_confirm"
@@ -81,4 +81,6 @@
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 </layout>

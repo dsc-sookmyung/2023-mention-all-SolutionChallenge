@@ -1,6 +1,5 @@
 package com.example.cpr2u_android.data.model.request.auth
 
-
 import com.google.gson.annotations.SerializedName
 
 data class RequestSignUp(
@@ -8,6 +7,8 @@ data class RequestSignUp(
     val deviceToken: String,
     @SerializedName("nickname")
     val nickname: String,
+    @SerializedName("address_id")
+    val addressId: Int,
     @SerializedName("phone_number")
-    val phoneNumber: String
+    val phoneNumber: String,
 )

@@ -15,7 +15,7 @@ interface EducationService {
     @GET("education/quizzes")
     suspend fun getQuizzes(): ResponseQuizzesList
 
-    @POST("quizzes/progress")
+    @POST("education/quizzes/progress")
     suspend fun postQuizProgress(
         @Body score: Int,
     ): GeneralResponse

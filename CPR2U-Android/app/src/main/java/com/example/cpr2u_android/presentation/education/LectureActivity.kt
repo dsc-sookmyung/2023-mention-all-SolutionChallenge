@@ -1,10 +1,12 @@
 package com.example.cpr2u_android.presentation.education
 
 import android.app.Dialog
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
+import android.view.View
 import android.view.WindowManager
 import android.webkit.WebViewClient
 import androidx.databinding.DataBindingUtil
@@ -44,6 +46,10 @@ class LectureActivity : BaseActivity<ActivityLectureBinding>(R.layout.activity_l
                 null,
                 false,
             )
+            binding.tvTitle.text = "Lecture Complete!"
+            binding.tvSubtitle.text = "You have completed the Lecture!\nYou are one step closer to becoming\na CPR Angel!"
+            binding.ivHeart.visibility = View.VISIBLE
+            binding.ivHeartGray.visibility = View.INVISIBLE
             binding.buttonFinish.setOnClickListener {
                 educationViewModel.postLectureId()
                 educationViewModel.testUIState.flowWithLifecycle(lifecycle).onEach {
@@ -71,7 +77,7 @@ class LectureActivity : BaseActivity<ActivityLectureBinding>(R.layout.activity_l
 
             dialog.show()
         }
-        handler.postDelayed(runnable, 30000L)
+        handler.postDelayed(runnable, 40 * 60 * 1000)
     }
 
     override fun onDestroy() {

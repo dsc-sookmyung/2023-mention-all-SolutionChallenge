@@ -13,8 +13,6 @@ data class UserInfo(
     var isPostureCompleted: Int,
     @SerializedName("is_quiz_completed")
     var isQuizCompleted: Int,
-    @SerializedName("last_lecture_title")
-    var lastLectureTitle: String,
     @SerializedName("nickname")
     var nickname: String,
     @SerializedName("progress_percent")

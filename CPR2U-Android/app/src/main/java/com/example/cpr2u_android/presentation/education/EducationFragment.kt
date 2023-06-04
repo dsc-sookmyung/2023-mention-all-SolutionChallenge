@@ -1,18 +1,13 @@
 package com.example.cpr2u_android.presentation.education
 
-import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import androidx.databinding.DataBindingUtil
 import com.example.cpr2u_android.R
-import com.example.cpr2u_android.data.sharedpref.CPR2USharedPreference
-import com.example.cpr2u_android.databinding.DialogQuizBinding
-import com.example.cpr2u_android.databinding.DialogSelectAddressBinding
 import com.example.cpr2u_android.databinding.FragmentEducationBinding
 import com.example.cpr2u_android.presentation.base.BaseFragment
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import timber.log.Timber
 
 class EducationFragment : BaseFragment<FragmentEducationBinding>(R.layout.fragment_education) {
     private val educationViewModel: EducationViewModel by sharedViewModel()
@@ -35,71 +30,46 @@ class EducationFragment : BaseFragment<FragmentEducationBinding>(R.layout.fragme
         }
 
         binding.clPosturePractice.setOnClickListener {
-            if (pass2)startActivity(Intent(requireContext(), PosePracticeActivity::class.java))
+            if (pass2) startActivity(Intent(requireContext(), PosePracticeActivity::class.java))
         }
     }
 
     private fun observeUserInfo() {
         educationViewModel.userInfo.observe(viewLifecycleOwner) {
-            if (educationViewModel.userInfo.value?.isLectureCompleted == 2) {
-                binding.clLecture.isSelected = true
+            binding.tvNickname.text = it.nickname
+            if (it.isLectureCompleted == 0) {
+                binding.done1 = false
+            } else {
+                binding.done1 = true
                 pass1 = true
-                binding.tvLectureComplete.text = "Complete"
-            } else {
-                binding.clLecture.isSelected = false
-                binding.tvLectureComplete.text = "Not Completed"
             }
-
-            if (educationViewModel.userInfo.value?.isQuizCompleted == 2) {
-                binding.clQuiz.isSelected = true
+            if (it.isQuizCompleted == 0) {
+                binding.doing2 = educationViewModel.userInfo.value?.isLectureCompleted != 0
+                binding.done2 = false
+            } else {
                 pass2 = true
-                binding.tvQuizComplete.text = "Complete"
+                binding.doing2 = false
+                binding.done2 = true
+            }
+            if (it.isPostureCompleted == 0) {
+                binding.doing3 = educationViewModel.userInfo.value?.isQuizCompleted != 0
+                binding.done3 = false
             } else {
-                binding.clQuiz.isSelected = false
-                binding.tvQuizComplete.text = "Not Completed"
+                binding.doing3 = false
+                binding.done3 = true
             }
-
-            if (educationViewModel.userInfo.value?.isPostureCompleted == 2) {
-                binding.clPosturePractice.isSelected = true
-                binding.tvPosePracticeComplete.text = "Complete"
-            } else {
-                binding.clPosturePractice.isSelected = false
-                binding.tvPosePracticeComplete.text = "Not Completed"
-            }
-
-            if (educationViewModel.userInfo.value?.angelStatus == 2 && CPR2USharedPreference.getLocation()
-                    .isNullOrEmpty()
-            ) {
-                // 주소 피커 띄우기
-                val dialog = Dialog(requireContext())
-                val dialogBinding = DataBindingUtil.inflate<DialogSelectAddressBinding>(
-                    LayoutInflater.from(requireContext()),
-                    R.layout.dialog_select_address,
-                    null,
-                    false,
-                )
-                dialogBinding.npSido.apply {
-                    // TODO : 주소 max value, display value
-                    setOnValueChangedListener { picker, oldVal, newVal ->
-
-                    }
-                }
-            }
-
-            binding.progressBar.progress =
-                (educationViewModel._userInfo.value?.progressPercent!! * 100).toInt()
-            binding.tvNickname.text = educationViewModel._userInfo.value?.nickname
-
-            when (educationViewModel.userInfo.value?.angelStatus) {
+            when (it.angelStatus) {
                 0 -> {
                     binding.acquired = true
                     binding.tvUserAcquired.text =
                         "ACQUIRED (D-${educationViewModel.userInfo.value!!.daysLeftUntilExpiration})"
                 }
+
                 1 -> {
                     binding.acquired = false
                     binding.tvUserAcquired.text = "EXPIRED"
                 }
+
                 else -> {
                     binding.acquired = false
                     binding.tvUserAcquired.text = "UNACQUIRED"

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cpr2u_android.data.model.request.RequestDispatchReport
 import com.example.cpr2u_android.data.model.request.education.RequestCall
+import com.example.cpr2u_android.data.model.response.auth.GeneralResponse
 import com.example.cpr2u_android.data.model.response.call.ResponseCallList
 import com.example.cpr2u_android.domain.repository.call.CallRepository
 import com.example.cpr2u_android.util.UiState
@@ -41,6 +42,9 @@ class CallViewModel(private val callRepository: CallRepository) : ViewModel() {
     private val _dispatchId = MutableLiveData<Int>()
     val dispatchId: LiveData<Int> = _dispatchId
 
+    val isDispatch = MutableLiveData<Boolean>()
+    val numberOfAngels = MutableLiveData<Int>(0)
+
     /*
     "latitude": 37.5440261,
   "longitude": 126.9671087,
@@ -72,6 +76,17 @@ class CallViewModel(private val callRepository: CallRepository) : ViewModel() {
     fun setCallUiState() = viewModelScope.launch {
         kotlin.runCatching {
             _callUIState.emit(UiState.Loading)
+        }
+    }
+
+    fun getNumbersOfAngel(callId: Int) = viewModelScope.launch {
+        kotlin.runCatching {
+            callRepository.getNumbersOfAngel(callId)
+        }.onSuccess {
+            numberOfAngels.value = it.data.numberOfAngels
+            Timber.d("get-numbers-of-angel-success ${it.data.numberOfAngels}")
+        }.onFailure {
+            Timber.d("get-numbers-of-angel-fail $it")
         }
     }
 
