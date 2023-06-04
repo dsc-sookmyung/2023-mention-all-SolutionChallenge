@@ -1,9 +1,9 @@
 package com.mentionall.cpr2u.call.controller;
 
-import com.mentionall.cpr2u.call.dto.CprCallGuideResponseDto;
-import com.mentionall.cpr2u.call.dto.CprCallIdDto;
-import com.mentionall.cpr2u.call.dto.CprCallNearUserDto;
-import com.mentionall.cpr2u.call.dto.CprCallOccurDto;
+import com.mentionall.cpr2u.call.dto.cpr_call.CprCallGuideResponseDto;
+import com.mentionall.cpr2u.call.dto.cpr_call.CprCallIdResponseDto;
+import com.mentionall.cpr2u.call.dto.cpr_call.CprCallNearUserResponseDto;
+import com.mentionall.cpr2u.call.dto.cpr_call.CprCallRequestDto;
 import com.mentionall.cpr2u.call.service.CprCallService;
 import com.mentionall.cpr2u.user.domain.PrincipalDetails;
 import com.mentionall.cpr2u.util.GetUserDetails;
@@ -33,7 +33,7 @@ public class CprCallController {
 
     @Operation(summary = "홈 화면", description = "현재 근처에서 진행중인 CPR 요청이 있는지 확인한다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CprCallNearUserDto.class)))),
+            @ApiResponse(responseCode = "200", description = "성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CprCallNearUserResponseDto.class)))),
             @ApiResponse(responseCode = "400", description = "엔젤 자격증이 있으나, 주소를 설정하지 않음", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResponseTemplate.class))))
     })
     @GetMapping
@@ -43,13 +43,13 @@ public class CprCallController {
 
     @Operation(summary = "호출하기", description = "사건 발생 지역의 CPR Angel들을 호출한다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CprCallIdDto.class)))),
-            @ApiResponse(responseCode = "404", description = "해당 주소지에 맞는 주소 지역구를 찾을 수 없습니다", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CprCallIdDto.class))))
+            @ApiResponse(responseCode = "200", description = "성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CprCallIdResponseDto.class)))),
+            @ApiResponse(responseCode = "404", description = "해당 주소지에 맞는 주소 지역구를 찾을 수 없습니다", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CprCallIdResponseDto.class))))
     })
     @PostMapping
-    public ResponseEntity<ResponseDataTemplate> makeCall(@RequestBody CprCallOccurDto cprCallOccurDto,
+    public ResponseEntity<ResponseDataTemplate> makeCall(@RequestBody CprCallRequestDto cprCallRequestDto,
                                                          @GetUserDetails PrincipalDetails userDetails) {
-        return ResponseDataTemplate.toResponseEntity(OK_SUCCESS, cprCallService.makeCall(cprCallOccurDto, userDetails.getUser()));
+        return ResponseDataTemplate.toResponseEntity(OK_SUCCESS, cprCallService.makeCall(cprCallRequestDto, userDetails.getUser()));
     }
 
     @Operation(summary = "실시간 호출 상황 안내", description = "현재 출동 중인 CPR 엔젤이 몇명인지 확인한다.")

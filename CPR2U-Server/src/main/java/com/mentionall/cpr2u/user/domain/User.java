@@ -2,8 +2,8 @@ package com.mentionall.cpr2u.user.domain;
 
 import com.mentionall.cpr2u.call.domain.Dispatch;
 import com.mentionall.cpr2u.call.domain.Report;
-import com.mentionall.cpr2u.education.domain.EducationProgress;
-import com.mentionall.cpr2u.user.dto.UserSignUpDto;
+import com.mentionall.cpr2u.education.domain.progress.EducationProgress;
+import com.mentionall.cpr2u.user.dto.user.SignUpRequestDto;
 import com.mentionall.cpr2u.util.RandomGenerator;
 import com.mentionall.cpr2u.util.Timestamped;
 import lombok.AllArgsConstructor;
@@ -37,27 +37,23 @@ public class User extends Timestamped{
     @Column(length = 20, unique = true)
     private String phoneNumber;
 
-    @Column
-    private LocalDateTime dateOfIssue;
+    @Embedded
+    private Certificate certificate;
 
-    @Column(length = 10)
-    @Enumerated(EnumType.STRING)
-    private AngelStatusEnum status;
-
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private EducationProgress educationProgress;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private RefreshToken refreshToken;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private DeviceToken deviceToken;
 
     @ElementCollection(fetch = FetchType.LAZY)
     private List<UserRole> roles = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
+    @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "dispatcher")
@@ -66,28 +62,39 @@ public class User extends Timestamped{
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "reporter")
     List<Report> reportList = new ArrayList();
 
-    public User(UserSignUpDto userSignUpDto) {
-        this.nickname = userSignUpDto.getNickname();
-        this.phoneNumber = userSignUpDto.getPhoneNumber();
-        this.dateOfIssue = null;
-        this.status = AngelStatusEnum.UNACQUIRED;
+    public User(SignUpRequestDto requestDto, Address address) {
+        this.nickname = requestDto.getNickname();
+        this.phoneNumber = requestDto.getPhoneNumber();
+        this.address = address;
+        this.certificate = new Certificate(AngelStatus.UNACQUIRED, null);
         this.roles.add(UserRole.USER);
+    }
+
+    public AngelStatus getAngelStatus() {
+        return this.certificate.getStatus();
     }
 
     public void setDeviceToken(DeviceToken deviceToken) {
         this.deviceToken = deviceToken;
+    }
+    public void setRefreshToken(RefreshToken refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public void setAddress(Address address) {
         this.address = address;
     }
 
-    public void acquireCertification() {
-        this.status = AngelStatusEnum.ACQUIRED;
-        this.dateOfIssue = LocalDateTime.now();
+    public void setEducationProgress(EducationProgress progress) {
+        this.educationProgress = progress;
+    }
+
+    public void acquireCertification(LocalDateTime dateOfIssue) {
+        this.certificate.acquire(dateOfIssue);
     }
 
     public void expireCertificate() {
-        this.status = AngelStatusEnum.EXPIRED;
+        this.certificate.expire();
+        this.educationProgress.reset();
     }
 }

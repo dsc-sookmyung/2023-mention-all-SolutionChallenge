@@ -1,7 +1,11 @@
 package com.mentionall.cpr2u.user.controller;
 
-import com.mentionall.cpr2u.user.dto.*;
-import com.mentionall.cpr2u.user.service.UserService;
+import com.mentionall.cpr2u.user.domain.PrincipalDetails;
+import com.mentionall.cpr2u.user.dto.address.AddressResponseDto;
+import com.mentionall.cpr2u.user.dto.user.*;
+import com.mentionall.cpr2u.user.service.AddressService;
+import com.mentionall.cpr2u.user.service.AuthService;
+import com.mentionall.cpr2u.util.GetUserDetails;
 import com.mentionall.cpr2u.util.ResponseDataTemplate;
 import com.mentionall.cpr2u.util.ResponseTemplate;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +27,8 @@ import static com.mentionall.cpr2u.util.exception.ResponseCode.OK_SUCCESS;
 @RequestMapping("/auth")
 @Tag(name = "AuthController", description = "회원가입/로그인")
 public class AuthController {
-    private final UserService userService;
+    private final AuthService authService;
+    private final AddressService addressService;
 
     @Operation(summary = "회원가입",
             method = "POST",
@@ -31,13 +36,13 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원가입 성공",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserTokenDto.class))))
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TokenResponseDto.class))))
     })
     @PostMapping("/signup")
-    public ResponseEntity<ResponseDataTemplate> signup(@RequestBody UserSignUpDto userSignUpDto){
+    public ResponseEntity<ResponseDataTemplate> signup(@RequestBody SignUpRequestDto signUpRequestDto){
         return ResponseDataTemplate.toResponseEntity(
                 OK_SUCCESS,
-                userService.signup(userSignUpDto)
+                authService.signup(signUpRequestDto)
         );
     }
 
@@ -47,13 +52,25 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "인증번호 발급 성공",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserCodeDto.class))))
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CodeResponseDto.class))))
     })
     @PostMapping("/verification")
-    public ResponseEntity<ResponseDataTemplate> issueVerificationCode(@RequestBody UserPhoneNumberDto userPhoneNumberDto){
+    public ResponseEntity<ResponseDataTemplate> issueVerificationCode(@RequestBody PhoneNumberRequestDto userPhoneNumberRequestDto){
         return ResponseDataTemplate.toResponseEntity(
                 OK_SUCCESS,
-                userService.getVerificationCode(userPhoneNumberDto)
+                authService.getVerificationCode(userPhoneNumberRequestDto)
+        );
+    }
+
+    @Operation(summary = "주소 리스트 조회", description = "전국 시도와 시군구 주소 리스트를 조회한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = AddressResponseDto.class)))),
+    })
+    @GetMapping("/address")
+    public ResponseEntity<ResponseDataTemplate> readAddressList() {
+        return ResponseDataTemplate.toResponseEntity(
+                OK_SUCCESS,
+                addressService.readAll()
         );
     }
 
@@ -63,15 +80,15 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserTokenDto.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TokenResponseDto.class)))),
             @ApiResponse(responseCode = "404", description = "회원가입이 필요한 사용자",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResponseTemplate.class))))
     })
     @PostMapping("/login")
-    public ResponseEntity<ResponseDataTemplate> verificationUserLogin(@RequestBody UserLoginDto userLoginDto){
+    public ResponseEntity<ResponseDataTemplate> verificationUserLogin(@RequestBody LoginRequestDto loginRequestDto){
         return ResponseDataTemplate.toResponseEntity(
                 OK_SUCCESS,
-                userService.login(userLoginDto)
+                authService.login(loginRequestDto)
         );
     }
     @Operation(summary = "닉네임 중복확인",
@@ -86,7 +103,7 @@ public class AuthController {
     })
     @GetMapping("/nickname")
     public ResponseEntity<ResponseTemplate> nicknameCheck(@RequestParam("nickname") String nickname){
-        userService.checkNicknameDuplicated(nickname);
+        authService.checkNicknameDuplicated(nickname);
 
         return ResponseTemplate.toResponseEntity(OK_NICKNAME_CHECK);
     }
@@ -97,17 +114,32 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "자동 로그인 성공",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserTokenDto.class)))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TokenResponseDto.class)))),
             @ApiResponse(responseCode = "403", description = "유효하지 않은 refresh token",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResponseTemplate.class))))
     })
     @PostMapping("/auto-login")
-    public ResponseEntity<ResponseDataTemplate> autoLogin(@RequestBody UserTokenReissueDto userTokenReissueDto){
+    public ResponseEntity<ResponseDataTemplate> autoLogin(@RequestBody TokenReissueRequestDto tokenReissueRequestDto){
         return ResponseDataTemplate.toResponseEntity(
                 OK_SUCCESS,
-                userService.reissueToken(userTokenReissueDto)
+                authService.reissueToken(tokenReissueRequestDto)
         );
     }
 
+    @Operation(summary = "로그아웃",
+            method = "POST",
+            description = "로그아웃 API"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResponseTemplate.class)))),
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseTemplate> logout(@GetUserDetails PrincipalDetails userDetails) {
+        authService.logout(userDetails.getUser());
+        return ResponseTemplate.toResponseEntity(
+                OK_SUCCESS
+        );
+    }
 
 }

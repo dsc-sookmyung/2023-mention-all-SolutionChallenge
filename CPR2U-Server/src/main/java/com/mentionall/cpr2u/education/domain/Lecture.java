@@ -1,5 +1,6 @@
 package com.mentionall.cpr2u.education.domain;
 
+import com.mentionall.cpr2u.education.domain.progress.EducationProgress;
 import com.mentionall.cpr2u.education.dto.lecture.LectureRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,7 +31,7 @@ public class Lecture implements Comparable<Lecture> {
     @Column(length = 50)
     private String description;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "lastLecture")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "lectureProgress.lastLecture")
     List<EducationProgress> progressList = new ArrayList();
 
     public Lecture(LectureRequestDto requestDto) {

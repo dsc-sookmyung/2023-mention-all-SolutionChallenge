@@ -1,6 +1,6 @@
 package com.mentionall.cpr2u.config.security;
 
-import com.mentionall.cpr2u.user.domain.UserRole;
+import com.mentionall.cpr2u.user.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -17,7 +17,6 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -36,9 +35,9 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String userPk, List<UserRole> roles) {
-        Claims claims = Jwts.claims().setSubject(userPk);
-        claims.put("roles", roles);
+    public String createAccessToken(User user) {
+        Claims claims = Jwts.claims().setSubject(user.getId());
+        claims.put("roles", user.getRoles());
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
@@ -48,9 +47,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken() {
+    public String createRefreshToken(User user) {
+        Claims claims = Jwts.claims().setSubject(user.getId());
+
         Date now = new Date();
         return Jwts.builder()
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)

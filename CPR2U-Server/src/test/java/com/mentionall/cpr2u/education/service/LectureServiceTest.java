@@ -1,68 +1,89 @@
 package com.mentionall.cpr2u.education.service;
 
-import com.mentionall.cpr2u.education.domain.EducationProgress;
-import com.mentionall.cpr2u.education.domain.TestStandard;
 import com.mentionall.cpr2u.education.dto.lecture.LectureRequestDto;
-import com.mentionall.cpr2u.education.dto.lecture.LectureResponseDto;
-import com.mentionall.cpr2u.education.dto.lecture.PostureLectureResponseDto;
-import com.mentionall.cpr2u.education.repository.EducationProgressRepository;
 import com.mentionall.cpr2u.user.domain.User;
-import com.mentionall.cpr2u.user.dto.UserSignUpDto;
+import com.mentionall.cpr2u.user.dto.user.SignUpRequestDto;
 import com.mentionall.cpr2u.user.repository.UserRepository;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import com.mentionall.cpr2u.user.service.AddressService;
+import com.mentionall.cpr2u.user.service.AuthService;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 
-import java.util.UUID;
-
+import static com.mentionall.cpr2u.education.domain.TestStandard.finalLectureStep;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@DisplayName("강의 관련 테스트")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class LectureServiceTest {
 
     @Autowired
-    private LectureService lectureService;
-
+    private AuthService authService;
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
-    private EducationProgressRepository progressRepository;
+    private EducationProgressService progressService;
+    @Autowired
+    private AddressService addressService;
+    @Autowired
+    private LectureService lectureService;
 
-    @Test
-    @Transactional
-    @DisplayName("사용자의 강의 진도 조회")
-    public void readLectureProgress() {
-        //given
-        User user = userRepository.save(new User(new UserSignUpDto("현애", "+821000000000", UUID.randomUUID().toString())));
-        progressRepository.save(new EducationProgress(user));
+    private static final String phoneNumber = "010-0000-0000";
+    private static final String nickname = "유저";
 
-        lectureService.createLecture(new LectureRequestDto(1, "강의1", "1입니다.", "https://naver.com"));
-
-        //when
-        var progressDto = lectureService.readLectureProgress(user);
-
-        //then
-        assertThat(progressDto.getCurrentStep()).isEqualTo(0);
-        assertThat(progressDto.getLectureList().size()).isEqualTo(TestStandard.finalLectureStep);
-
-        int beforeStep = 0;
-        for (LectureResponseDto lecture : progressDto.getLectureList()) {
-            assertThat(lecture.getStep()).isGreaterThan(beforeStep);
-            beforeStep = lecture.getStep();
-        }
+    @BeforeEach
+    private void beforeEach() {
+        addressService.loadAddressList();
     }
 
     @Test
-    @DisplayName("자세실습 강의 조회")
-    public void readPostureLecture() {
-        //given & when
-        PostureLectureResponseDto postureLecture = lectureService.readPostureLecture();
+    @Transactional
+    public void 강의를_이수하지_않은_유저가_강의_리스트_조회() {
+        //given
+        createLectureCourse();
+
+        var address = addressService.readAll().get(0).getGugunList().get(0);
+        authService.signup(new SignUpRequestDto(nickname, phoneNumber, address.getId(), "device_token"));
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+
+        //when
+        var lectureInfo = lectureService.readLectureProgressAndList(user);
 
         //then
-        assertThat(postureLecture.getVideoUrl()).isEqualTo("https://www.naver.com");
+        assertThat(lectureInfo.getCurrentStep()).isEqualTo(0);
+        assertThat(lectureInfo.getLectureList().size()).isEqualTo(finalLectureStep);
+    }
+
+    @Test
+    @Transactional
+    public void 강의를_이수한_유저가_강의_리스트_조회() {
+        //given
+        createLectureCourse();
+
+        var address = addressService.readAll().get(0).getGugunList().get(0);
+        authService.signup(new SignUpRequestDto(nickname, phoneNumber, address.getId(), "device_token"));
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+
+        completeFirstLecture(user);
+
+        //when
+        var lectureInfo = lectureService.readLectureProgressAndList(user);
+
+        //then
+        assertThat(lectureInfo.getCurrentStep()).isEqualTo(1);
+        assertThat(lectureInfo.getLectureList().size()).isEqualTo(finalLectureStep);
+    }
+
+    private void completeFirstLecture(User user) {
+        var lectureInfo = lectureService.readLectureProgressAndList(user);
+        var lecture = lectureInfo.getLectureList().get(0);
+        progressService.completeLecture(user, lecture.getId());
+    }
+
+    private void createLectureCourse() {
+        lectureService.createLecture(new LectureRequestDto(1, "일반인 심폐소생술 표준 교육", "2020 Korean Guideline", "https://youtu.be/5DWyihalLMM"));
     }
 }

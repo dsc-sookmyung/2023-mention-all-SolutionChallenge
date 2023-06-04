@@ -26,6 +26,10 @@ public class DeviceToken {
         this.token = deviceToken;
     }
 
+    public DeviceToken(User user) {
+        this.user = user;
+    }
+
     public void setToken(String deviceToken) {
         this.token = deviceToken;
     }

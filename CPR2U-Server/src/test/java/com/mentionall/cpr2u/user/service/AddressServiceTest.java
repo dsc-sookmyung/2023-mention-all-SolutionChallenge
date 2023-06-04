@@ -1,15 +1,11 @@
 package com.mentionall.cpr2u.user.service;
 
-import com.mentionall.cpr2u.config.security.JwtTokenProvider;
-import com.mentionall.cpr2u.user.domain.Address;
 import com.mentionall.cpr2u.user.domain.User;
-import com.mentionall.cpr2u.user.dto.AddressRequestDto;
-import com.mentionall.cpr2u.user.dto.AddressResponseDto;
-import com.mentionall.cpr2u.user.dto.UserSignUpDto;
-import com.mentionall.cpr2u.user.repository.AddressRepository;
+import com.mentionall.cpr2u.user.dto.address.AddressRequestDto;
+import com.mentionall.cpr2u.user.dto.address.AddressResponseDto;
+import com.mentionall.cpr2u.user.dto.user.SignUpRequestDto;
 import com.mentionall.cpr2u.user.repository.UserRepository;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -19,64 +15,58 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@DisplayName("주소지 관련 테스트")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class AddressServiceTest {
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
     @Autowired
     private AddressService addressService;
-
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private AuthService authService;
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Test
-    @DisplayName("사용자의 주소지 설정")
-    @Transactional
-    public void setAddress() {
-        //given
-        String userId = getUserId("현애", "010-0000-0000", "device-token");
-        Address address = new Address("서울특별시", "용산구");
-        addressRepository.save(address);
-
-        //when
-        User user = userRepository.findById(userId).get();
-        addressService.setAddress(user, new AddressRequestDto(address.getId()));
-
-        //then
-        assertThat(user.getAddress().getId()).isEqualTo(address.getId());
-        assertThat(user.getAddress().getSido()).isEqualTo("서울특별시");
-        assertThat(user.getAddress().getSigugun()).isEqualTo("용산구");
+    @BeforeEach
+    public void beforeEach() {
+        addressService.loadAddressList();
     }
 
     @Test
-    @DisplayName("전체 주소지 리스트 조회")
     @Transactional
-    public void readAll() {
+    public void 유저의_주소지_설정() {
         //given
-        addressRepository.save(new Address("서울특별시", "용산구"));
-        addressRepository.save(new Address("서울특별시", "중구"));
-        addressRepository.save(new Address("서울특별시", "종로구"));
-        addressRepository.save(new Address("서울특별시", "마포구"));
+        List<AddressResponseDto> addressList = addressService.readAll();
+        var address = addressList.get(0);
+        var addressDetail = address.getGugunList().get(0);
+
+        authService.signup(new SignUpRequestDto("현애", "010-0000-0000", addressDetail.getId(), "device-token"));
+        User user = userRepository.findByPhoneNumber("010-0000-0000").get();
+
+        //when
+        address = addressList.get(1);
+        addressDetail = address.getGugunList().get(0);
+
+        addressService.setAddress(user, new AddressRequestDto(addressDetail.getId()));
+
+        //then
+        User findUser = userRepository.findByPhoneNumber("010-0000-0000").get();
+        assertThat(findUser.getAddress().getSido()).isEqualTo(address.getSido());
+        assertThat(findUser.getAddress().getId()).isEqualTo(addressDetail.getId());
+        assertThat(findUser.getAddress().getSigugun()).isEqualTo(addressDetail.getGugun());
+    }
+
+    @Test
+    @Transactional
+    public void 주소지_리스트_조회() {
+        //given
 
         //when
         List<AddressResponseDto> response = addressService.readAll();
 
         //then
-        assertThat(response.size()).isEqualTo(1);
-        assertThat(response.get(0).getSido()).isEqualTo("서울특별시");
-        assertThat(response.get(0).getGugunList().size()).isEqualTo(4);
+        assertThat(response.size()).isEqualTo(16);                           // count of sido
+        assertThat(response.get(0).getSido()).isEqualTo("강원도");
+        assertThat(response.get(0).getGugunList().size()).isEqualTo(18);     // count of sigugun
     }
-
-    private String getUserId(String nickname, String phoneNumber, String deviceToken) {
-        String accessToken = userService.signup(new UserSignUpDto(nickname, phoneNumber, deviceToken)).getAccessToken();
-        return jwtTokenProvider.getUserId(accessToken);
-    }
-
 }

@@ -1,7 +1,7 @@
 package com.mentionall.cpr2u.call.controller;
 
-import com.mentionall.cpr2u.call.dto.DispatchRequestDto;
-import com.mentionall.cpr2u.call.dto.DispatchResponseDto;
+import com.mentionall.cpr2u.call.dto.dispatch.DispatchRequestDto;
+import com.mentionall.cpr2u.call.dto.dispatch.DispatchResponseDto;
 import com.mentionall.cpr2u.call.dto.ReportRequestDto;
 import com.mentionall.cpr2u.call.service.DispatchService;
 import com.mentionall.cpr2u.user.domain.PrincipalDetails;
@@ -34,6 +34,8 @@ public class DispatchController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = DispatchResponseDto.class)))),
+            @ApiResponse(responseCode = "400", description = "이미 종료되었거나, 본인이 생성한 호출에 대한 출동입니다.",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResponseTemplate.class)))),
             @ApiResponse(responseCode = "404", description = "해당 ID의 CPR 요청 정보를 찾을 수 없습니다.",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ResponseTemplate.class)))),
     })

@@ -26,7 +26,7 @@ public class FcmToken {
         this.token = fcmToken;
     }
 
-    public void setToken(String deviceToken) {
-        this.token = deviceToken;
+    public void setToken(String fcmToken) {
+        this.token = fcmToken;
     }
 }

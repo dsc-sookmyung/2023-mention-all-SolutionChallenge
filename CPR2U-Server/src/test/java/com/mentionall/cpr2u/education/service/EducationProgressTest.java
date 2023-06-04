@@ -1,227 +1,294 @@
 package com.mentionall.cpr2u.education.service;
 
-import com.mentionall.cpr2u.education.domain.EducationProgress;
-import com.mentionall.cpr2u.education.domain.Lecture;
-import com.mentionall.cpr2u.education.domain.ProgressStatus;
-import com.mentionall.cpr2u.education.dto.EducationProgressDto;
-import com.mentionall.cpr2u.education.dto.ScoreDto;
-import com.mentionall.cpr2u.education.repository.EducationProgressRepository;
-import com.mentionall.cpr2u.education.repository.FakeEducationProgressRepository;
-import com.mentionall.cpr2u.education.repository.FakeLectureRepository;
-import com.mentionall.cpr2u.education.repository.LectureRepository;
-import com.mentionall.cpr2u.user.domain.AngelStatusEnum;
+import com.mentionall.cpr2u.education.dto.ScoreRequestDto;
+import com.mentionall.cpr2u.education.dto.lecture.LectureRequestDto;
+import com.mentionall.cpr2u.user.domain.AngelStatus;
 import com.mentionall.cpr2u.user.domain.User;
-import com.mentionall.cpr2u.user.dto.UserSignUpDto;
-import com.mentionall.cpr2u.user.repository.FakeUserRepository;
+import com.mentionall.cpr2u.user.dto.user.SignUpRequestDto;
 import com.mentionall.cpr2u.user.repository.UserRepository;
+import com.mentionall.cpr2u.user.service.AddressService;
+import com.mentionall.cpr2u.user.service.AuthService;
+import com.mentionall.cpr2u.user.service.UserService;
 import com.mentionall.cpr2u.util.exception.CustomException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 import static com.mentionall.cpr2u.education.domain.ProgressStatus.*;
 import static com.mentionall.cpr2u.education.domain.TestStandard.*;
-import static com.mentionall.cpr2u.education.domain.TestStandard.totalStep;
+import static com.mentionall.cpr2u.user.domain.AngelStatus.ACQUIRED;
+import static com.mentionall.cpr2u.user.domain.AngelStatus.UNACQUIRED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@DisplayName("유저 교육 진도 관련 테스트")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class EducationProgressTest {
+    @Autowired
     private EducationProgressService progressService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private AuthService authService;
+    @Autowired
     private UserRepository userRepository;
-    private LectureRepository lectureRepository;
-    private EducationProgressRepository progressRepository;
+    @Autowired
+    private LectureService lectureService;
+    @Autowired
+    private AddressService addressService;
+
+    private static final String phoneNumber = "010-0000-0000";
 
     @BeforeEach
-    public void beforeEach() {
-        userRepository = new FakeUserRepository();
-        lectureRepository = new FakeLectureRepository();
-        progressRepository = new FakeEducationProgressRepository();
-        progressService = new EducationProgressService(progressRepository, lectureRepository);
-    }
-
-    @BeforeEach
-    public void insertData() {
-
-        LocalDate after3Days = LocalDate.now().minusDays(3);
-        LocalDate after90Days = LocalDate.now().minusDays(90);
-        LocalDate after91Days = LocalDate.now().minusDays(91);
-
-        User user1 = userRepository.save(new User("1L", "현애", "010-0000-0000", after3Days.atStartOfDay(), AngelStatusEnum.ACQUIRED, null, null, null, null, null, null, null));
-        User user2 = userRepository.save(new User("2L", "예진", "010-1111-1111", after3Days.atStartOfDay(), AngelStatusEnum.ACQUIRED, null, null, null, null, null, null, null));
-        User user3 = userRepository.save(new User("3L", "정현", "010-2222-2222", after90Days.atStartOfDay(), AngelStatusEnum.ACQUIRED, null, null, null, null, null, null, null));
-        User user4 = userRepository.save(new User("4L", "채영", "010-3333-3333", after91Days.atStartOfDay(), AngelStatusEnum.ACQUIRED, null, null, null, null, null, null, null));
-
-
-        EducationProgress educationProgress1 = progressRepository.save(new EducationProgress(1L, user1, null, 0, 0));
-        EducationProgress educationProgress2 = progressRepository.save(new EducationProgress(2L, user2, null, 0, 0));
-        EducationProgress educationProgress3 = progressRepository.save(new EducationProgress(3L, user3, null, 0, 0));
-        EducationProgress educationProgress4 = progressRepository.save(new EducationProgress(4L, user4, null, 0, 0));
-
-        lectureRepository.save(new Lecture(1L, "타이틀", "강의 URL", 1, "설명", new ArrayList<>()));
-    }
-
-    @Test
-    @DisplayName("강의 이수 완료")
-    public void completeLecture() {
-        //given
-        User user = userRepository.findById("1").get();
-
-        //when lecture course is not started,
-        verifyLectureProgress(user, null, NotCompleted);
-
-        //when lecture course is in progress,
-        for (var lecture : lectureRepository.findAll()) {
-            progressService.completeLecture(user, lecture.getId());
-
-            int currentStep = progressRepository.findByUser(user).get().getLastLecture().getStep();
-            boolean isInProgress = currentStep < finalLectureStep;
-            if (isInProgress) verifyLectureProgress(user, lecture, InProgress);
-        }
-
-        //when lecture course is completed,
-        verifyLectureProgress(user, null, Completed);
-    }
-
-    @Test
-    @DisplayName("퀴즈 테스트 통과")
-    public void completeQuiz() {
-        //given
-        User user = userRepository.findById("1").get();
-        completeLectureCourse(user);
-
-        //when quiz test is not started,
-        verifyQuizProgress(user, NotCompleted);
-
-        //when the user fails the quiz test,
-        Assertions.assertThrows(CustomException.class,
-                () -> progressService.completeQuiz(user, new ScoreDto(50)));
-        verifyQuizProgress(user, NotCompleted);
-
-        //when the user succeeds the quiz test,
-        progressService.completeQuiz(user, new ScoreDto(100));
-        verifyQuizProgress(user, Completed);
-    }
-
-    @Test
-    @DisplayName("자세실습 테스트 통과")
-    public void completePosture() {
-        //given
-        User user = userRepository.findById("1").get();
-        completeLectureCourse(user);
-        progressService.completeQuiz(user, new ScoreDto(100));
-
-        //when a posture test is not started,
-        verifyPostureProgress(user, NotCompleted);
-
-        //when the user fails the posture test,
-        Assertions.assertThrows(CustomException.class,
-                () -> progressService.completePosture(user, new ScoreDto(79)));
-        verifyPostureProgress(user, NotCompleted);
-
-        //when the user succeeds the posture test,
-        progressService.completePosture(user, new ScoreDto(81));
-        verifyPostureProgress(user, Completed);
+    private void beforeEach() {
+        addressService.loadAddressList();
+        var address = addressService.readAll().get(0).getGugunList().get(0);
+        authService.signup(new SignUpRequestDto("현애", phoneNumber, address.getId(), "device_token"));
     }
 
     @Test
     @Transactional
-    @DisplayName("강의를 듣지 않으면 퀴즈 테스트 불통과")
-    public void completeQuizWithoutLecture() {
+    public void 강의_수강중인_경우() {
         //given
-        User user = userRepository.findById("1").get();
+        createLectureCourse();
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
 
-        // when the lecture course is not completed,
+        //when
+        var lectureList = lectureService.readLectureProgressAndList(user).getLectureList();
+        for (var lecture : lectureList) {
+            progressService.completeLecture(user, lecture.getId());
+            if (lecture.getStep() == finalLectureStep) break;
+
+            // then
+            var educationInfo = progressService.readEducationInfo(user);
+            assertThat(educationInfo.getIsLectureCompleted()).isEqualTo(InProgress.ordinal());
+
+            double progressPercent = lecture.getStep() / totalStep;
+            assertThat(educationInfo.getProgressPercent()).isEqualTo(progressPercent);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void 강의_수강완료한_경우() {
+        //given
+        createLectureCourse();
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+
+        //when
+        completeLectureCourse(user);
+
+        //then
+        var educationInfo = progressService.readEducationInfo(user);
+        assertThat(educationInfo.getIsLectureCompleted()).isEqualTo(Completed.ordinal());
+        assertThat(educationInfo.getProgressPercent()).isEqualTo((double)finalLectureStep / (double)totalStep);
+
+        assertThat(educationInfo.getIsQuizCompleted()).isEqualTo(NotCompleted.ordinal());
+        assertThat(educationInfo.getIsPostureCompleted()).isEqualTo(NotCompleted.ordinal());
+    }
+
+    @Test
+    @Transactional
+    public void 퀴즈_100점을_넘은_경우() {
+        //given
+        createLectureCourse();
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+        completeLectureCourse(user);
+
+        //when
+        progressService.completeQuiz(user, new ScoreRequestDto(100));
+
+        //then
+        var quizStatus = progressService.readEducationInfo(user).getIsQuizCompleted();
+        assertThat(quizStatus).isEqualTo(Completed.ordinal());
+
+        var postureStatus = progressService.readEducationInfo(user).getIsPostureCompleted();
+        assertThat(postureStatus).isEqualTo(NotCompleted.ordinal());
+    }
+
+    @Test
+    @Transactional
+    public void 퀴즈_100점을_넘지_않은_경우() {
+        //given
+        createLectureCourse();
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+        completeLectureCourse(user);
+
+        //when
         Assertions.assertThrows(CustomException.class,
-                () -> progressService.completeQuiz(user, new ScoreDto(100))
+                () -> progressService.completeQuiz(user, new ScoreRequestDto(99)));
+
+        //then
+        var quizStatus = progressService.readEducationInfo(user).getIsQuizCompleted();
+        assertThat(quizStatus).isEqualTo(NotCompleted.ordinal());
+    }
+
+    @Test
+    @Transactional
+    public void 퀴즈_강의를_마무리하지_않고_테스트한_경우() {
+        //given
+        createLectureCourse();
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+
+        //when, then
+        Assertions.assertThrows(CustomException.class,
+                () -> progressService.completeQuiz(user, new ScoreRequestDto(100))
         );
     }
 
     @Test
-    @DisplayName("강의/퀴즈를 마무리하지 않으면 자세 실습 불통과")
-    public void completePostureWithoutQuizOrLecture() {
+    @Transactional
+    public void 자세실습_80점을_넘은_경우() {
         //given
-        User user = userRepository.findById("1").get();
-
-        // when the lecture course is not completed,
-        Assertions.assertThrows(CustomException.class,
-                () -> progressService.completePosture(user, new ScoreDto(100)));
-
-        // when the lecture course is completed, but quiz test is not
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+        createLectureCourse();
         completeLectureCourse(user);
-        Assertions.assertThrows(CustomException.class,
-                () -> progressService.completePosture(user, new ScoreDto(100)));
+        progressService.completeQuiz(user, new ScoreRequestDto(100));
+
+        //when
+        progressService.completePosture(user, new ScoreRequestDto(81));
+
+        //then
+        int postureStatus =  progressService.readEducationInfo(user).getIsPostureCompleted();
+        assertThat(postureStatus).isEqualTo(Completed.ordinal());
+
+        double progressPercent = progressService.readEducationInfo(user).getProgressPercent();
+        assertThat(progressPercent).isEqualTo(1.0);
     }
 
     @Test
-    @DisplayName("엔젤 유효기간 D-DAY 값 확인")
-    public void checkAngelStatusDDay() {
-
-        //get
-        User user1 = userRepository.findById("1").get();
-        user1.acquireCertification();
-        User user2 = userRepository.findById("2").get();
-        User user3 = userRepository.findById("3").get();
-        User user4 = userRepository.findById("4").get();
-
-        EducationProgress educationProgress1 = progressRepository.findByUser(user1).get();
-        EducationProgress educationProgress2 = progressRepository.findByUser(user2).get();
-        EducationProgress educationProgress3 = progressRepository.findByUser(user3).get();
-        EducationProgress educationProgress4 = progressRepository.findByUser(user4).get();
+    @Transactional
+    public void 자세실습_80점을_넘지않은_경우() {
+        //given
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+        createLectureCourse();
+        completeLectureCourse(user);
+        progressService.completeQuiz(user, new ScoreRequestDto(100));
 
         //when
-        EducationProgressDto acquireAngelToday = new EducationProgressDto(educationProgress1, user1);
-        EducationProgressDto acquireAngelAfter3Day = new EducationProgressDto(educationProgress2, user2);
-        EducationProgressDto acquireAngelAfter90Day = new EducationProgressDto(educationProgress3, user3);
-        EducationProgressDto acquireAngelAfter91Day = new EducationProgressDto(educationProgress4, user4);
+        Assertions.assertThrows(CustomException.class,
+                () -> progressService.completePosture(user, new ScoreRequestDto(79)));
 
         //then
-        assertThat(acquireAngelToday.getDaysLeftUntilExpiration()).isEqualTo(90);
-        assertThat(acquireAngelAfter3Day.getDaysLeftUntilExpiration()).isEqualTo(87);
-        assertThat(acquireAngelAfter90Day.getDaysLeftUntilExpiration()).isEqualTo(0);
-        assertThat(acquireAngelAfter91Day.getDaysLeftUntilExpiration()).isEqualTo(null);
+        int postureStatus =  progressService.readEducationInfo(user).getIsPostureCompleted();
+        assertThat(postureStatus).isEqualTo(NotCompleted.ordinal());
     }
 
-    private void verifyLectureProgress(User user, Lecture lecture, ProgressStatus status) {
-        var progress = progressService.readEducationInfo(user);
-        assertThat(progress.getIsLectureCompleted()).isEqualTo(status.ordinal());
+    @Test
+    @Transactional
+    public void 자세실습_강의를_마무리하지_않고_테스트한_경우() {
+        //given
+        createLectureCourse();
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
 
-        if (status == InProgress) {
-            int currentStep = progressRepository.findByUser(user).get().getLastLecture().getStep();
-            assertThat(currentStep).isEqualTo(lecture.getStep());
-            assertThat(progress.getLastLectureTitle()).isEqualTo(lecture.getTitle());
-        }
-
-        double progressPercent =
-                (status == Completed) ? ((double) finalLectureStep / (double) totalStep) :
-                (status == InProgress) ? (double) lecture.getStep() / (double) totalStep : 0.0;
-        assertThat(progress.getProgressPercent()).isEqualTo(progressPercent);
+        //when, then
+        Assertions.assertThrows(CustomException.class,
+                () -> progressService.completePosture(user, new ScoreRequestDto(100)));
     }
 
-    private void verifyQuizProgress(User user, ProgressStatus status) {
-        int quizStatus = progressService.readEducationInfo(user).getIsQuizCompleted();
-        assertThat(quizStatus).isEqualTo(status.ordinal());
+    @Test
+    @Transactional
+    public void 자세실습_퀴즈를_마무리하지_않고_테스트한_경우() {
+        //given
+        createLectureCourse();
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+
+        //when, then
+        completeLectureCourse(user);
+        Assertions.assertThrows(CustomException.class,
+                () -> progressService.completePosture(user, new ScoreRequestDto(100)));
     }
 
-    private void verifyPostureProgress(User user, ProgressStatus status) {
-        var progress = progressService.readEducationInfo(user);
-        int postureStatus = progress.getIsPostureCompleted();
-        assertThat(postureStatus).isEqualTo(status.ordinal());
+    @Test
+    @Transactional
+    public void 교육_수료_전_수료증_확인() {
+        //given
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
 
-        if (postureStatus == Completed.ordinal())
-            assertThat(progress.getProgressPercent()).isEqualTo(1.0);
+        //when
+        var educationInfo = progressService.readEducationInfo(user);
+
+        //then
+        assertThat(educationInfo.getAngelStatus()).isEqualTo(UNACQUIRED.ordinal());
+        assertThat(educationInfo.getDaysLeftUntilExpiration()).isEqualTo(null);
+    }
+
+    //TODO: 당일, 3일, 90일, 91일 수료증 확인 과정 하나로 합치기
+    @Test
+    @Transactional
+    public void 교육_수료_당일_수료증_확인() {
+        //given
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+        userService.certificate(user, LocalDate.now().atStartOfDay());
+
+        //when
+        var educationInfo = progressService.readEducationInfo(user);
+
+        //then
+        assertThat(educationInfo.getAngelStatus()).isEqualTo(ACQUIRED.ordinal());
+        assertThat(educationInfo.getDaysLeftUntilExpiration()).isEqualTo(validTime);
+    }
+
+    @Test
+    @Transactional
+    public void 교육_수료_3일_후_수료증_확인() {
+        //given
+        int day = 3;
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+        userService.certificate(user, LocalDate.now().minusDays(day).atStartOfDay());
+
+
+        //when
+        var educationInfo = progressService.readEducationInfo(user);
+
+        //then
+        assertThat(educationInfo.getAngelStatus()).isEqualTo(ACQUIRED.ordinal());
+        assertThat(educationInfo.getDaysLeftUntilExpiration()).isEqualTo(validTime - day);
+    }
+
+    @Test
+    @Transactional
+    public void 교육_수료_90일_후_수료증_확인() {
+        //given
+        int day = 90;
+        User user = userRepository.findByPhoneNumber(phoneNumber).get();
+        userService.certificate(user, LocalDate.now().minusDays(day).atStartOfDay());
+
+        //when
+        var educationInfo = progressService.readEducationInfo(user);
+
+        //then
+        assertThat(educationInfo.getAngelStatus()).isEqualTo(ACQUIRED.ordinal());
+        assertThat(educationInfo.getDaysLeftUntilExpiration()).isEqualTo(validTime - day);
+    }
+
+    @Test
+    @Transactional
+    public void 교육_수료_91일_후_수료증_만료() {
+        //given
+        int day = 91;
+        User user = userRepository.findByPhoneNumber("010-0000-0000").get();
+        userService.certificate(user, LocalDate.now().minusDays(day).atStartOfDay());
+
+        //when
+        var educationInfo = progressService.readEducationInfo(user);
+
+        //then
+        //assertThat(educationInfo.getAngelStatus()).isEqualTo(EXPIRED);
+        assertThat(educationInfo.getDaysLeftUntilExpiration()).isEqualTo(null);
     }
 
     private void completeLectureCourse(User user) {
-        var lectureList = lectureRepository.findAll().stream().sorted().collect(Collectors.toList());
-        lectureList.forEach(lecture ->
-                progressService.completeLecture(user, lecture.getId())
-        );
+        var lectureList = lectureService.readLectureProgressAndList(user).getLectureList();
+        for (var lecture : lectureList) {
+            progressService.completeLecture(user, lecture.getId());
+        }
+    }
+
+    private void createLectureCourse() {
+        lectureService.createLecture(new LectureRequestDto(1, "일반인 심폐소생술 표준 교육", "2020 Korean Guideline", "https://youtu.be/5DWyihalLMM"));
     }
 }

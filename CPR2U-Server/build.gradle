@@ -8,6 +8,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.9'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'jacoco'
 }
 
 group = 'com.mentionall'
@@ -43,15 +44,16 @@ dependencies {
 	implementation 'com.google.firebase:firebase-admin:6.8.1'
 	implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.2'
 
-	compileOnly 'org.projectlombok:lombok'
+	implementation 'com.twilio.sdk:twilio:8.8.0'
 
-	runtimeOnly 'com.h2database:h2'
+	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'com.h2database:h2:1.4.200'
 }
 
 sourceSets {
@@ -60,6 +62,18 @@ sourceSets {
 			srcDirs = ["$projectDir/src/main/java", "$projectDir/build/generated"]
 		}
 	}
+	test{
+		java {
+			srcDirs = ["$projectDir/src/test", "$projectDir/build/generated"]
+		}
+		resources {
+			includes = ["$projectDir/src/test/resources/config/application.yml"]
+		}
+	}
+}
+
+test {
+	classpath += sourceSets.test.output
 }
 
 bootJar {
@@ -68,4 +82,57 @@ bootJar {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy 'jacocoTestReport'
+	finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacoco {
+	toolVersion = '0.8.7'
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled true
+		csv.enabled true
+		html.enabled true
+
+		xml.destination file("${buildDir}/jacoco/index.xml")
+		csv.destination file("${buildDir}/jacoco/index.csv")
+		html.destination file("${buildDir}/jacoco/index.html")
+	}
+
+	afterEvaluate {
+		classDirectories.setFrom(
+				files(classDirectories.files.collect {
+					fileTree(dir: it, excludes: [
+							'**/*Application*',
+							'**/*Exception*',
+							'**/dto/**',
+							'**/controller/**'
+					])
+				})
+		)
+	}
+}
+
+jacocoTestCoverageVerification {
+	var Qdomains = new ArrayList<String>()
+
+	for (char qPattern = 'A'; qPattern <= 'Z'; qPattern++) {
+		Qdomains.add("*.Q${qPattern}*")
+	}
+
+	violationRules {
+		rule {
+			element = 'CLASS'
+
+			limit {
+				counter = 'BRANCH'
+				value = 'COVEREDRATIO'
+				minimum = 0.00
+			}
+
+			excludes = Qdomains
+		}
+	}
 }

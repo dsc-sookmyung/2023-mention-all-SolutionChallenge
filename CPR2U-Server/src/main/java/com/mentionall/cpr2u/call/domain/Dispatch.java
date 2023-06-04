@@ -34,7 +34,7 @@ public class Dispatch {
     private LocalDateTime arrivedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cpr_call")
+    @JoinColumn(name = "cpr_call_id")
     private CprCall cprCall;
 
 

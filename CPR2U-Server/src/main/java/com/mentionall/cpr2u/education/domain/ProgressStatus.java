@@ -9,6 +9,4 @@ public enum ProgressStatus {
     Completed("Completed");
 
     private final String status;
-    public static final int lastLectureStep = 4;
-    public static final int totalStep = 6;
 }
