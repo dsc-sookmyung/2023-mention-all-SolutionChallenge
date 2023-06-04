@@ -13,6 +13,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -36,7 +37,10 @@ import com.example.cpr2u_android.databinding.FragmentCallBinding
 import com.example.cpr2u_android.domain.model.CallInfoBottomSheet
 import com.example.cpr2u_android.util.UiState
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationListener
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
@@ -79,6 +83,15 @@ class CallFragment :
     private lateinit var address: Address
     private lateinit var fullAddress: String
     var currentMarker: Marker? = null
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            locationResult.lastLocation?.let { location ->
+                // 현재 위치 변수 (위도와 경도)를 업데이트합니다.
+                latitude = location.latitude
+                longitude = location.longitude
+            }
+        }
+    }
 
     private var timerSec: Int = 0
     private var time: TimerTask? = null
@@ -117,6 +130,7 @@ class CallFragment :
         fadeInText.visibility = View.INVISIBLE
 
         initTimer()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         bell.setOnTouchListener { _, event ->
             when (event.action) {
@@ -139,6 +153,25 @@ class CallFragment :
         }
         return view
     }
+
+    private fun startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // 위치 권한이 허용되지 않은 경우 위치 권한을 요청합니다.
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), locationPermissionCode)
+            return
+        }
+        val locationRequest = LocationRequest.create().apply {
+            interval = 1000 // 간격을 1초로 설정합니다.
+            fastestInterval = 1000 // 가장 빠른 간격을 1초로 설정합니다.
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+    }
+
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
 
     private fun initTimer() {
         Timber.d("#### init Timer")
@@ -346,7 +379,9 @@ class CallFragment :
                         callAt = address.calledAt,
                     ),
                     convertTime = convertCallAtStringToStartTime(address.calledAt),
-                ) { checkDistanceAndShowLog() }
+                ) {
+                    checkDistanceAndShowLog()
+                    isComplete = true}
                 productInfoFragment!!.show(requireFragmentManager(), "TAG")
             }
             true
@@ -365,7 +400,7 @@ class CallFragment :
                             currentMarker!!.position.longitude,
                         ),
                     )
-                    if (distance <= 20 && isComplete) { // 100m를 km로 변환하여 0.1로 설정
+                    if (distance < 20 && isComplete && callViewModel.isDispatch.value == true) { // 100m를 km로 변환하여 0.1로 설정
                         isComplete = false
                         callViewModel.postDispatchArrive()
                         productInfoFragment!!.dismiss()
@@ -446,8 +481,14 @@ class CallFragment :
         super.onResume()
 //        mapFragment.onResume()
         initTimer()
+        startLocationUpdates()
         countDownTimer.cancel()
         Timber.d("############resume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
     }
 
     override fun onDestroy() {
@@ -461,6 +502,12 @@ class CallFragment :
 
     override fun onLocationChanged(location: Location) {
         location ?: return
+
+        latitude = location.latitude
+        longitude = location.longitude
+
+        Timber.d("onLocationChanged latitude -> $latitude")
+        Timber.d("onLocationChanged longitude -> $longitude")
 
         // Add a marker for the user's current location
         if (::mMarker.isInitialized) {

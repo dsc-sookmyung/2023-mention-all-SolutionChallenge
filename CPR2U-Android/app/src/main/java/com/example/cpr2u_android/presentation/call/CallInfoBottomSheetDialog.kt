@@ -80,6 +80,7 @@ class CallInfoBottomSheetDialog(val item: CallInfoBottomSheet, val convertTime: 
                             callViewModel.dispatchSuccess.observe(viewLifecycleOwner) {
                                 if (it) {
                                     Timber.d("it , dismiss ->$it")
+                                    callViewModel.isDispatch.postValue(true)
                                     tvDispatch.visibility = View.GONE
                                     clMarkerInfo.visibility = View.INVISIBLE
                                     clTimer.visibility = View.VISIBLE
@@ -94,7 +95,6 @@ class CallInfoBottomSheetDialog(val item: CallInfoBottomSheet, val convertTime: 
                                     time = object : TimerTask() {
                                         override fun run() {
                                             checkDistanceAndShowLog()
-                                            callViewModel.isDispatch.postValue(true)
                                             updateTime()
                                             if (timerSec >= 900) {
                                                 callViewModel.isDispatch.postValue(false)
