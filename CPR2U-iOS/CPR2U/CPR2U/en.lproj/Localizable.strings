@@ -38,7 +38,7 @@ phdr: placeholder
 "completed_not" = "Not Completed";
 "open_not" = "Not Opened";
 "%@_greeting_txt" = "Hi %@";
-"%@_greet_des_txt" = "Hi %@ nYour Certification Status is";
+"%@_greet_des_txt" = "Hi %@ \nYour Certification Status is";
 
 // TabBarView
 "edu_tab_t" = "Education";
